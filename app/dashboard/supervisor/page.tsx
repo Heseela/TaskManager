@@ -1,0 +1,338 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import Card from '@/components/ui/Card';
+import Button from '@/components/ui/Button';
+import TaskList from '@/components/dashboard/TaskList';
+import AssignTaskModal from '@/components/dashboard/AssignTaskModal';
+import { DailyReport, Task } from '@/types';
+import { ClipboardList, Users } from 'lucide-react';
+
+export default function SupervisorDashboardPage() {
+  const { data: session } = useSession();
+  const [reports, setReports] = useState<DailyReport[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [employees, setEmployees] = useState<Array<{ id: string; name: string }>>([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<'reports' | 'tasks'>('reports');
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        
+        const reportsRes = await fetch('/api/reports');
+        if (!reportsRes.ok) throw new Error('Failed to fetch reports');
+        const reportsData = await reportsRes.json();
+        setReports(reportsData);
+
+        const tasksRes = await fetch('/api/tasks');
+        if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
+        const tasksData = await tasksRes.json();
+        setTasks(tasksData);
+
+        const employeesRes = await fetch('/api/employees');
+        if (employeesRes.ok) {
+          const employeesData = await employeesRes.json();
+          setEmployees(employeesData);
+        }
+      } catch (err) {
+        setError('Failed to load data');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (session?.user?.role === 'supervisor') {
+      fetchData();
+    }
+  }, [session]);
+
+  const handleAssignTask = async (taskData: any) => {
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(taskData),
+      });
+
+      if (!response.ok) throw new Error('Failed to assign task');
+      
+      const newTask = await response.json();
+      setTasks([newTask, ...tasks]);
+      setSuccessMessage('Task assigned successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to assign task');
+    }
+  };
+
+  const todayReports = reports.filter(
+    r => r.date === new Date().toISOString().split('T')[0]
+  );
+  const uniqueEmployees = [...new Map(reports.map(r => [r.userId, r.userName])).entries()];
+  const avgHoursPerDay = reports.length > 0 
+    ? (reports.reduce((sum, r) => sum + r.hoursWorked, 0) / reports.length).toFixed(1)
+    : '0';
+
+  const pendingTasks = tasks.filter(t => t.status !== 'completed').length;
+
+  return (
+    <div>
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="dashboard-title">Supervisor Dashboard</h2>
+          <Button onClick={() => setIsModalOpen(true)}>
+            + Assign New Task
+          </Button>
+        </div>
+
+        {successMessage && (
+          <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
+            ✓ {successMessage}
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+            ✗ {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold" style={{ color: '#0088D0' }}>
+                {isLoading ? '...' : todayReports.length}
+              </div>
+              <div className="text-gray-600 text-sm mt-1">Reports Today</div>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold" style={{ color: '#0088D0' }}>
+                {uniqueEmployees.length}
+              </div>
+              <div className="text-gray-600 text-sm mt-1">Active Employees</div>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold" style={{ color: '#0088D0' }}>
+                {avgHoursPerDay}
+              </div>
+              <div className="text-gray-600 text-sm mt-1">Avg Hours/Day</div>
+            </div>
+          </Card>
+          <Card>
+            <div className="text-center">
+              <div className="text-3xl font-bold" style={{ color: '#0088D0' }}>
+                {pendingTasks}
+              </div>
+              <div className="text-gray-600 text-sm mt-1">Pending Tasks</div>
+            </div>
+          </Card>
+        </div>
+
+        <div className="bg-gray-100 p-1 rounded-xl mb-6">
+  <nav className="flex gap-1" role="tablist">
+    <button
+      onClick={() => setActiveTab('reports')}
+      className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
+        activeTab === 'reports'
+          ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
+          : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+      }`}
+      role="tab"
+      aria-selected={activeTab === 'reports'}
+    >
+      <div className="flex items-center justify-center gap-2">
+        <Users className={`w-4 h-4 transition-colors ${
+          activeTab === 'reports' ? 'text-[#0088D0]' : 'text-gray-400'
+        }`} />
+        <span>Team Reports</span>
+      </div>
+    </button>
+    
+    <button
+      onClick={() => setActiveTab('tasks')}
+      className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
+        activeTab === 'tasks'
+          ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
+          : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+      }`}
+      role="tab"
+      aria-selected={activeTab === 'tasks'}
+    >
+      <div className="flex items-center justify-center gap-2">
+        <ClipboardList className={`w-4 h-4 transition-colors ${
+          activeTab === 'tasks' ? 'text-[#0088D0]' : 'text-gray-400'
+        }`} />
+        <span>Assigned Tasks</span>
+        <span className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${
+          activeTab === 'tasks'
+            ? 'bg-[#0088D0]/10 text-[#0088D0]'
+            : 'bg-gray-200 text-gray-600'
+        }`}>
+          {tasks.length}
+        </span>
+      </div>
+    </button>
+  </nav>
+</div>
+      </div>
+
+      {activeTab === 'reports' ? (
+        isLoading ? (
+          <Card>
+            <p className="text-gray-500 text-center py-8">Loading reports...</p>
+          </Card>
+        ) : (
+          <ReportsSection reports={reports} />
+        )
+      ) : (
+        <TaskList tasks={tasks} userRole="supervisor" />
+      )}
+
+      <AssignTaskModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        employees={employees}
+        onSubmit={handleAssignTask}
+      />
+    </div>
+  );
+}
+
+function ReportsSection({ reports }: { reports: DailyReport[] }) {
+  const [selectedDate, setSelectedDate] = useState<string>('all');
+  const [selectedEmployee, setSelectedEmployee] = useState('all');
+
+  const sortedReports = [...reports].sort((a, b) =>
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+
+  const filteredReports = sortedReports.filter(report => {
+    const dateMatch = selectedDate === 'all' || report.date === selectedDate;
+    const employeeMatch = selectedEmployee === 'all' || report.userId === selectedEmployee;
+    return dateMatch && employeeMatch;
+  });
+
+  const uniqueDates = [...new Map(reports.map(r => [r.date, r.date])).keys()].sort().reverse();
+  const uniqueEmployees = [...new Map(reports.map(r => [r.userId, r.userName])).entries()]
+    .map(([id, name]) => ({ id, name }));
+
+  return (
+    <div className="space-y-6">
+      <div className="flex gap-4 mb-6">
+        <div className="flex-1">
+          <label className="block text-gray-700 text-sm font-medium mb-1">Filter by Date</label>
+          <select
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+          >
+            <option value="all">All Dates</option>
+            {uniqueDates.map(date => (
+              <option key={date} value={date}>{date}</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1">
+          <label className="block text-gray-700 text-sm font-medium mb-1">Filter by Employee</label>
+          <select
+            value={selectedEmployee}
+            onChange={(e) => setSelectedEmployee(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+          >
+            <option value="all">All Employees</option>
+            {uniqueEmployees.map(emp => (
+              <option key={emp.id} value={emp.id}>{emp.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {filteredReports.length === 0 ? (
+        <Card>
+          <div className="text-center py-8">
+            <p className="text-gray-500">No reports found for the selected criteria</p>
+          </div>
+        </Card>
+      ) : (
+        <div className="space-y-6">
+          {selectedDate === 'all' ? (
+            Object.entries(
+              filteredReports.reduce((acc, report) => {
+                if (!acc[report.date]) acc[report.date] = [];
+                acc[report.date].push(report);
+                return acc;
+              }, {} as Record<string, DailyReport[]>)
+            ).map(([date, dateReports]) => (
+              <div key={date}>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">{date}</h3>
+                <div className="space-y-4">
+                  {dateReports.map(report => (
+                    <ReportCard key={report.id} report={report} />
+                  ))}
+                </div>
+              </div>
+            ))
+          ) : (
+            filteredReports.map(report => (
+              <ReportCard key={report.id} report={report} />
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReportCard({ report }: { report: DailyReport }) {
+  return (
+    <Card>
+      <div className="space-y-4">
+        <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+          <div>
+            <h4 className="font-semibold text-gray-800">{report.userName}</h4>
+            <p className="text-sm text-gray-500">
+              Submitted: {new Date(report.submittedAt).toLocaleString()}
+            </p>
+          </div>
+          <span className="text-sm font-medium text-gray-600">{report.hoursWorked} hours</span>
+        </div>
+
+        <div>
+          <h5 className="font-medium text-gray-700 mb-2">Tasks Completed</h5>
+          <ul className="list-disc list-inside space-y-1">
+            {report.tasks.map((task, idx) => (
+              <li key={idx} className="text-gray-600 text-sm">{task}</li>
+            ))}
+          </ul>
+        </div>
+
+        {report.challenges && (
+          <div>
+            <h5 className="font-medium text-gray-700 mb-2">Challenges</h5>
+            <p className="text-gray-600 text-sm">{report.challenges}</p>
+          </div>
+        )}
+
+        <div>
+          <h5 className="font-medium text-gray-700 mb-2">Tomorrow's Plan</h5>
+          <ul className="list-disc list-inside space-y-1">
+            {report.tomorrowPlan.map((plan, idx) => (
+              <li key={idx} className="text-gray-600 text-sm">{plan}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Card>
+  );
+}
