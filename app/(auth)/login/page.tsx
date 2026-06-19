@@ -46,14 +46,13 @@ export default function LoginPage() {
     }
   };
 
-  // Demo credentials
-  const demoUsers = [
-    { email: 'supervisor@company.com', password: 'demo123', role: 'Supervisor', dept: 'IT' },
-    { email: 'employee@company.com', password: 'demo123', role: 'Employee', dept: 'IT - Network' },
-    { email: 'employee2@company.com', password: 'demo123', role: 'Employee', dept: 'IT - Developer' },
-    { email: 'employee3@company.com', password: 'demo123', role: 'Employee', dept: 'IT - Support' },
-    { email: 'employee4@company.com', password: 'demo123', role: 'Employee', dept: 'IT - Infra' },
-  ];
+const demoUsers = [
+  { email: 'shailesh@srdb.com.np', password: 'demo123', role: 'Supervisor', dept: 'IT - CTO' },
+  { email: 'niraj@srdb.com.np', password: 'demo123', role: 'Employee', dept: 'IT - Network' },
+  { email: 'anup@srdb.com.np', password: 'demo123', role: 'Employee', dept: 'IT - Developer' },
+  { email: 'prakash@srdb.com.np', password: 'demo123', role: 'Employee', dept: 'IT - Support' },
+  { email: 'tara@srdb.com.np', password: 'demo123', role: 'Employee', dept: 'IT - Infra' },
+];
 
   const fillDemoCredentials = (email: string, password: string) => {
     setEmail(email);

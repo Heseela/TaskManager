@@ -54,7 +54,8 @@ export type SubUnitType =
   | 'Network' 
   | 'Support' 
   | 'Infra' 
-  | 'CBS';
+  | 'CBS'
+  | 'CTO';
 
 export type TaskCategory = 
   // Network
@@ -83,7 +84,7 @@ export type TaskCategory =
   | 'VMware Monitoring' 
   | 'Server Hardening' 
   | 'DCIM Monitoring'
-  
+
   // CBS
   | 'Pumori' 
   | 'CBS Configuration' 
@@ -100,7 +101,8 @@ export const TASK_CATEGORIES_BY_SUB_UNIT: Record<SubUnitType, TaskCategory[]> = 
   'Developer': ['Application Development', 'Database', 'Query', 'App/Db Server Monitor', 'Email Job for Report'],
   'Support': ['Printer Setup', 'User Access', 'PC Setup', 'Email Setup', 'Camera Monitoring', 'Domain Setup'],
   'Infra': ['Server Setup', 'VMware Monitoring', 'Server Hardening', 'DCIM Monitoring'],
-  'CBS': ['Pumori', 'CBS Configuration', 'CBS Monitoring']
+  'CBS': ['Pumori', 'CBS Configuration', 'CBS Monitoring'],
+  'CTO': []
 };
 
 export interface DailyReport extends Report {}

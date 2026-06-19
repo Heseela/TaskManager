@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate department
-    const validDepartments = ['IT', 'CSD', 'OI', 'GSD', 'HR', 'Finance', 'Operations'];
+    const validDepartments = ['IT'];
     if (!validDepartments.includes(department)) {
       return NextResponse.json(
         { error: 'Invalid department' },

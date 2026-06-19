@@ -3,17 +3,17 @@ import { User, Report, Task, DepartmentType, SubUnitType } from '@/types';
 const users: User[] = [
   {
     id: '1',
-    email: 'supervisor@company.com',
-    name: 'Supervisor User',
+    email: 'shailesh@srdb.com.np',
+    name: 'Shailesh Shrivastav',
     password: 'demo123',
     role: 'supervisor',
     department: 'IT',
-    subUnit: 'Developer'
+    subUnit: 'CTO'
   },
   {
     id: '2',
-    email: 'employee@company.com',
-    name: 'Employee1',
+    email: 'niraj@srdb.com.np',
+    name: 'Niraj Dhakal',
     password: 'demo123',
     role: 'employee',
     department: 'IT',
@@ -21,8 +21,8 @@ const users: User[] = [
   },
   {
     id: '3',
-    email: 'employee2@company.com',
-    name: 'Employee2',
+    email: 'anup@srdb.com.np',
+    name: 'Anup Gautam',
     password: 'demo123',
     role: 'employee',
     department: 'IT',
@@ -30,8 +30,8 @@ const users: User[] = [
   },
   {
     id: '4',
-    email: 'employee3@company.com',
-    name: 'Employee3',
+    email: 'prakash@srdb.com.np',
+    name: 'Prakash Bokati',
     password: 'demo123',
     role: 'employee',
     department: 'IT',
@@ -39,8 +39,8 @@ const users: User[] = [
   },
   {
     id: '5',
-    email: 'employee4@company.com',
-    name: 'Employee4',
+    email: 'tara@srdb.com.np',
+    name: 'Tara Pandey',
     password: 'demo123',
     role: 'employee',
     department: 'IT',
