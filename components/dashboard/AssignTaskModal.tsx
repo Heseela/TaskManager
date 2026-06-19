@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import Button from '../ui/Button';
+import { TaskCategory, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types';
 
 interface AssignTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  employees: Array<{ id: string; name: string }>;
+  employees: Array<{ id: string; name: string; subUnit?: SubUnitType }>;
   onSubmit: (taskData: any) => void;
 }
 
@@ -16,6 +17,12 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   const [assignedTo, setAssignedTo] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [dueDate, setDueDate] = useState('');
+  const [category, setCategory] = useState<TaskCategory | ''>('');
+
+  const selectedEmployee = employees.find(emp => emp.id === assignedTo);
+  const availableCategories = selectedEmployee?.subUnit 
+    ? TASK_CATEGORIES_BY_SUB_UNIT[selectedEmployee.subUnit] || []
+    : [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,12 +34,14 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
       assignedToName: selectedEmployee?.name || '',
       priority,
       dueDate,
+      category: category || undefined,
     });
     setTitle('');
     setDescription('');
     setAssignedTo('');
     setPriority('medium');
     setDueDate('');
+    setCategory('');
     onClose();
   };
 
@@ -76,16 +85,37 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
             <label className="block text-gray-700 font-medium mb-2">Assign To *</label>
             <select
               value={assignedTo}
-              onChange={(e) => setAssignedTo(e.target.value)}
+              onChange={(e) => {
+                setAssignedTo(e.target.value);
+                setCategory('');
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
               required
             >
               <option value="">Select employee</option>
               {employees.map(emp => (
-                <option key={emp.id} value={emp.id}>{emp.name}</option>
+                <option key={emp.id} value={emp.id}>
+                  {emp.name} {emp.subUnit ? `(${emp.subUnit})` : ''}
+                </option>
               ))}
             </select>
           </div>
+
+          {selectedEmployee && availableCategories.length > 0 && (
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Task Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as TaskCategory)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+              >
+                <option value="">Select category</option>
+                {availableCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-gray-700 font-medium mb-2">Priority</label>

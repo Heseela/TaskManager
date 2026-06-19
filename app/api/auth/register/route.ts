@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { DepartmentType, SubUnitType } from '@/types';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password, name, role, department } = body;
+    const { email, password, name, role, department, subUnit } = body;
 
-    if (!email || !password || !name || !role) {
+    if (!email || !password || !name || !role || !department) {
       return NextResponse.json(
-        { error: 'Missing required fields: email, password, name, role' },
+        { error: 'Missing required fields: email, password, name, role, department' },
         { status: 400 }
       );
     }
@@ -27,6 +28,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate department
+    const validDepartments = ['IT', 'CSD', 'OI', 'GSD', 'HR', 'Finance', 'Operations'];
+    if (!validDepartments.includes(department)) {
+      return NextResponse.json(
+        { error: 'Invalid department' },
+        { status: 400 }
+      );
+    }
+
+    // Validate sub-unit for employees
+    if (role === 'employee' && !subUnit) {
+      return NextResponse.json(
+        { error: 'Sub-unit is required for employees' },
+        { status: 400 }
+      );
+    }
+
     const existingUser = await db.getUser(email);
     if (existingUser) {
       return NextResponse.json(
@@ -41,7 +59,8 @@ export async function POST(req: NextRequest) {
       email,
       name,
       role,
-      department: department || undefined,
+      department: department as DepartmentType,
+      subUnit: subUnit as SubUnitType | undefined,
       password,
     });
 
@@ -54,6 +73,7 @@ export async function POST(req: NextRequest) {
           name: newUser.name,
           role: newUser.role,
           department: newUser.department,
+          subUnit: newUser.subUnit,
         },
       },
       { status: 201 }

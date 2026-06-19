@@ -1,5 +1,6 @@
 import 'next-auth';
 import 'next-auth/jwt';
+import { DepartmentType, SubUnitType } from '@/types';
 
 declare module 'next-auth' {
   interface User {
@@ -7,6 +8,8 @@ declare module 'next-auth' {
     role: string;
     name: string;
     email: string;
+    department: DepartmentType;
+    subUnit?: SubUnitType;
   }
   
   interface Session {
@@ -15,6 +18,8 @@ declare module 'next-auth' {
       role: string;
       name: string;
       email: string;
+      department: DepartmentType;
+      subUnit?: SubUnitType;
     }
   }
 }
@@ -25,5 +30,7 @@ declare module 'next-auth/jwt' {
     role: string;
     name?: string;
     email?: string;
+    department: DepartmentType;
+    subUnit?: SubUnitType;
   }
 }

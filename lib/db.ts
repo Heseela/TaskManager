@@ -1,4 +1,4 @@
-import { User, Report, Task } from '@/types';
+import { User, Report, Task, DepartmentType, SubUnitType } from '@/types';
 
 const users: User[] = [
   {
@@ -7,7 +7,8 @@ const users: User[] = [
     name: 'Supervisor User',
     password: 'demo123',
     role: 'supervisor',
-    department: 'Management'
+    department: 'IT',
+    subUnit: 'Developer'
   },
   {
     id: '2',
@@ -15,7 +16,8 @@ const users: User[] = [
     name: 'Employee1',
     password: 'demo123',
     role: 'employee',
-    department: 'Engineering'
+    department: 'IT',
+    subUnit: 'Network'
   },
   {
     id: '3',
@@ -23,7 +25,26 @@ const users: User[] = [
     name: 'Employee2',
     password: 'demo123',
     role: 'employee',
-    department: 'Engineering'
+    department: 'IT',
+    subUnit: 'Developer'
+  },
+  {
+    id: '4',
+    email: 'employee3@company.com',
+    name: 'Employee3',
+    password: 'demo123',
+    role: 'employee',
+    department: 'IT',
+    subUnit: 'Support'
+  },
+  {
+    id: '5',
+    email: 'employee4@company.com',
+    name: 'Employee4',
+    password: 'demo123',
+    role: 'employee',
+    department: 'IT',
+    subUnit: 'Infra'
   }
 ];
 
@@ -49,6 +70,12 @@ export const db = {
   getAllEmployees: async () => {
     return users
       .filter(u => u.role === 'employee')
+      .map(({ password, ...user }) => user);
+  },
+  
+  getEmployeesByDepartment: async (department: DepartmentType) => {
+    return users
+      .filter(u => u.role === 'employee' && u.department === department)
       .map(({ password, ...user }) => user);
   },
   
@@ -93,6 +120,13 @@ export const db = {
   getTasksBySupervisor: async (supervisorId: string) => {
     return tasks.filter(t => t.assignedBy === supervisorId);
   },
+  
+  getTasksByDepartment: async (department: DepartmentType) => {
+    const departmentEmployees = users
+      .filter(u => u.role === 'employee' && u.department === department)
+      .map(u => u.id);
+    return tasks.filter(t => departmentEmployees.includes(t.assignedTo));
+  },
 
   createTask: async (taskData: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newTask = {
@@ -120,5 +154,10 @@ export const db = {
 
   getTaskById: async (id: string) => {
     return tasks.find(t => t.id === id);
+  },
+  
+  // New: Get tasks by category
+  getTasksByCategory: async (category: Task['category']) => {
+    return tasks.filter(t => t.category === category);
   }
 };

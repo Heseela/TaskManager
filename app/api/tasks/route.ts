@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { TaskCategory } from '@/types';
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
+    const category = searchParams.get('category') as TaskCategory | null;
 
     let tasks;
     if (session.user.role === 'supervisor') {
@@ -21,6 +23,11 @@ export async function GET(req: NextRequest) {
       tasks = await db.getTasksByEmployee(session.user.id);
     } else {
       tasks = await db.getAllTasks();
+    }
+
+    // Filter by category if provided
+    if (category) {
+      tasks = tasks.filter(task => task.category === category);
     }
 
     return NextResponse.json(tasks);
@@ -43,7 +50,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { title, description, assignedTo, assignedToName, priority, dueDate } = body;
+    const { title, description, assignedTo, assignedToName, priority, dueDate, category } = body;
 
     if (!title || !assignedTo) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -59,6 +66,7 @@ export async function POST(req: NextRequest) {
       status: 'pending',
       priority: priority || 'medium',
       dueDate: dueDate || '',
+      category: category || undefined,
     });
 
     return NextResponse.json(newTask, { status: 201 });

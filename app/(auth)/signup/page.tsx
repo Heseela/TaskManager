@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import { DEPARTMENTS, SUB_UNITS_BY_DEPARTMENT, DepartmentType, SubUnitType } from '@/types';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -13,7 +14,8 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<'employee' | 'supervisor'>('employee');
-  const [department, setDepartment] = useState('');
+  const [department, setDepartment] = useState<DepartmentType>('IT');
+  const [subUnit, setSubUnit] = useState<SubUnitType | ''>('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -37,7 +39,12 @@ export default function SignupPage() {
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email address');
-     return false;
+      return false;
+    }
+
+    if (role === 'employee' && !subUnit) {
+      setError('Please select a sub-unit');
+      return false;
     }
 
     return true;
@@ -64,7 +71,8 @@ export default function SignupPage() {
           password,
           name,
           role,
-          department: department || undefined,
+          department,
+          subUnit: role === 'employee' ? subUnit : undefined,
         }),
       });
 
@@ -84,9 +92,11 @@ export default function SignupPage() {
     }
   };
 
+  const availableSubUnits = SUB_UNITS_BY_DEPARTMENT[department] || [];
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 py-8">
+      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="text-center mb-8">
           <div className="inline-block p-3 rounded-full mb-4" style={{ backgroundColor: '#0088D0' }}>
             <div className="w-12 h-12 flex justify-center items-center" style={{ color: '#0088D0' }}>
@@ -157,15 +167,37 @@ export default function SignupPage() {
             </select>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium mb-2">Department</label>
-            <Input
-              type="text"
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-medium mb-2">Department *</label>
+            <select
               value={department}
-              onChange={(e) => setDepartment(e.target.value)}
-              placeholder="Engineering (optional)"
-            />
+              onChange={(e) => {
+                setDepartment(e.target.value as DepartmentType);
+                setSubUnit('');
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {DEPARTMENTS.map(dept => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
+            </select>
           </div>
+
+          {role === 'employee' && (
+            <div className="mb-6">
+              <label className="block text-gray-700 text-sm font-medium mb-2">Sub-Unit *</label>
+              <select
+                value={subUnit}
+                onChange={(e) => setSubUnit(e.target.value as SubUnitType)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Select sub-unit</option>
+                {availableSubUnits.map(unit => (
+                  <option key={unit} value={unit}>{unit}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md">
