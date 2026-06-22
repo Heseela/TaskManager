@@ -35,7 +35,7 @@ export default function SupervisorDashboardPage() {
         const tasksData = await tasksRes.json();
         setTasks(tasksData);
 
-        const employeesRes = await fetch('/api/employees');
+        const employeesRes = await fetch('/api/tasks?type=employees');
         if (employeesRes.ok) {
           const employeesData = await employeesRes.json();
           setEmployees(employeesData);

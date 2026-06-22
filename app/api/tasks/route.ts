@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { db } from '@/lib/db';
+import { taskDb  } from '@/lib/task';
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,21 +13,30 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
+  const type = searchParams.get('type');
+  if (type === 'employees') {
+      const employees = await taskDb.getEmployees();
+      console.log("Employee drop down",employees);
+      return NextResponse.json(employees);
+    }
 
     let tasks;
     if (session.user.role === 'supervisor') {
-      tasks = await db.getTasksBySupervisor(session.user.id);
+      tasks = await taskDb.getTasksBySupervisor(session.user.id);
     } else if (session.user.role === 'employee') {
-      tasks = await db.getTasksByEmployee(session.user.id);
+      tasks = await taskDb.getTasksByEmployee(session.user.id);
     } else {
-      tasks = await db.getAllTasks();
+      tasks = await taskDb.getAllTasks();
     }
-
+console.log("TASKS:", tasks);
+console.log("TASK COUNT:", tasks.length);
     return NextResponse.json(tasks);
   } catch (error) {
     console.error('Error fetching tasks:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+
+  
 }
 
 export async function POST(req: NextRequest) {
@@ -82,7 +91,7 @@ export async function PUT(req: NextRequest) {
     if (!taskId) {
       return NextResponse.json({ error: 'Task ID required' }, { status: 400 });
     }
-
+    
     const task = await db.getTaskById(taskId);
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
@@ -98,4 +107,7 @@ export async function PUT(req: NextRequest) {
     console.error('Error updating task:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
+
+
+   
 }

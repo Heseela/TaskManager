@@ -12,6 +12,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [unit,setUnit]= useState('');
   const [role, setRole] = useState<'employee' | 'supervisor'>('employee');
   const [department, setDepartment] = useState('');
   const [error, setError] = useState('');
@@ -64,6 +65,7 @@ export default function SignupPage() {
           password,
           name,
           role,
+          unit,
           department: department || undefined,
         }),
       });
@@ -163,6 +165,16 @@ export default function SignupPage() {
               type="text"
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
+              placeholder="Engineering (optional)"
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-gray-700 text-sm font-medium mb-2">Sub-Unit</label>
+            <Input
+              type="text"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
               placeholder="Engineering (optional)"
             />
           </div>

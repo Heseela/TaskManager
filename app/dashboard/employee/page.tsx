@@ -26,8 +26,10 @@ export default function EmployeeDashboard() {
         setSubmittedReports(reportsData);
 
         const tasksRes = await fetch('/api/tasks');
+        console.log("TAskres in dasboard route", tasksRes);
         if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
         const tasksData = await tasksRes.json();
+        console.log("Task res data",tasksData);
         setTasks(tasksData);
       } catch (err) {
         setError('Failed to load data');
@@ -89,6 +91,21 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="space-y-8">
+
+       <div className="bg-white rounded-lg shadow p-6 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+          Welcome, {session?.user?.name} !
+        </h2>
+        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+          <span>Department: <strong className='capitalize'>{session?.user?.department}</strong></span>
+          {session?.user?.unit && (
+            <span>Sub-Unit: <strong className='capitalize'>{session?.user?.unit}</strong></span>
+          )}
+          <span>Role: <strong className='capitalize'>{session?.user?.role}</strong></span>
+        </div>
+      </div>
+
+
       {showSuccess && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
           ✓ Operation completed successfully!

@@ -22,12 +22,15 @@ const priorityColors = {
 };
 
 export default function TaskList({ tasks, userRole, onStatusUpdate }: TaskListProps) {
+
+
   const getStatusBadge = (status: Task['status']) => (
     <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[status]}`}>
       {status === 'in-progress' ? 'In Progress' : status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
+    
   );
-
+console.log("TASKLIST RECEIVED:", tasks);
   const getPriorityBadge = (priority: Task['priority']) => (
     <span className={`text-sm font-medium ${priorityColors[priority]}`}>
       {priority.toUpperCase()}
@@ -41,6 +44,10 @@ export default function TaskList({ tasks, userRole, onStatusUpdate }: TaskListPr
     if (currentStatus !== 'completed') options.push('completed');
     return options;
   };
+
+ const isEmployee = userRole === 'employee';
+  const isSupervisor = userRole === 'supervisor' ; 
+
 
   if (tasks.length === 0) {
     return (
@@ -74,7 +81,21 @@ export default function TaskList({ tasks, userRole, onStatusUpdate }: TaskListPr
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span>Assigned to: {task.assignedToName}</span>
+                    
+                   
+                     <span>
+                      {isEmployee ? (
+                        // For employees: Show who assigned the task
+                        <>Assigned By: {task.assignedByName || task.assignedToName}</>
+                      ) : isSupervisor ? (
+                        // For supervisors/managers: Show who the task is assigned to
+                        <>Assigned To: {task.assignedToName}</>
+                      ) : (
+                        // Fallback
+                        <>Assigned To: {task.assignedToName}</>
+                      )}
+                    </span>
+                   
                   </div>
                   {task.dueDate && (
                     <div className="flex items-center gap-1">

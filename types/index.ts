@@ -5,6 +5,7 @@ export interface User {
   password: string;
   role: 'supervisor' | 'employee';
   department?: string;
+  unit:string;
 }
 
 export interface Report {
@@ -41,6 +42,12 @@ export interface SafeUser {
   email: string;
   role: 'supervisor' | 'employee';
   department?: string;
+  unit: string;
+}
+
+export interface Employee {
+  id: string;
+  username: string;
 }
 
 export interface DailyReport extends Report {}
