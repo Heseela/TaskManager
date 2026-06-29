@@ -1,7 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react'; import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
@@ -14,10 +13,70 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [role, setRole] = useState<'employee' | 'supervisor'>('employee');
-  const [department, setDepartment] = useState<DepartmentType>('IT');
-  const [subUnit, setSubUnit] = useState<SubUnitType | ''>('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [departments, setDepartments] = useState<
+    {
+      ID: number;
+      DepName: string;
+      DepCode: string;
+    }[]
+  >([]);
+  const [subUnits, setSubUnits] = useState<
+    {
+      ID: number;
+      SubUnit: string;
+    }[]
+  >([]);
+  const [department, setDepartment] = useState('');
+  const [subUnit, setSubUnit] = useState('');
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await fetch('/api/auth/register');
+        const data = await res.json();
+
+        setDepartments(data);
+
+        // Set first department as default
+        if (data.length > 0) {
+          setDepartment(data[0].DepCode);
+        }
+      } catch (err) {
+        console.error('Failed to load departments:', err);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
+
+  useEffect(() => {
+    if (!department) return;
+
+    const fetchSubUnits = async () => {
+      try {
+        const selectedDepartment = departments.find(
+          (d) => d.DepCode === department
+        );
+
+        if (!selectedDepartment) return;
+
+        const res = await fetch(
+          `/api/auth/register?depId=${selectedDepartment.ID}`
+        );
+
+        const data = await res.json();
+
+        setSubUnits(data);
+        setSubUnit('');
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSubUnits();
+  }, [department, departments]);
 
   const validateForm = (): boolean => {
     setError('');
@@ -52,7 +111,7 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -72,7 +131,7 @@ export default function SignupPage() {
           name,
           role,
           department,
-          subUnit: role === 'employee' ? subUnit : undefined,
+          subUnit: role === 'employee' ? subUnit : '',
         }),
       });
 
@@ -92,7 +151,10 @@ export default function SignupPage() {
     }
   };
 
-  const availableSubUnits = SUB_UNITS_BY_DEPARTMENT[department] || [];
+  const availableSubUnits =
+    SUB_UNITS_BY_DEPARTMENT[
+    department as keyof typeof SUB_UNITS_BY_DEPARTMENT
+    ] || [];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 py-8">
@@ -168,32 +230,49 @@ export default function SignupPage() {
           </div>
 
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">Department *</label>
+            <label className="block text-gray-700 text-sm font-medium mb-2">
+              Department *
+            </label>
+
             <select
               value={department}
-              onChange={(e) => {
-                setDepartment(e.target.value as DepartmentType);
-                setSubUnit('');
-              }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onChange={(e) => setDepartment(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
             >
-              {DEPARTMENTS.map(dept => (
-                <option key={dept} value={dept}>{dept}</option>
+               <option value="" disabled>
+                  Select Department
+                </option>
+
+              {departments.map((dept) => (
+                <option
+                  key={dept.ID}
+                  value={dept.DepCode}
+                >
+                  {dept.DepName}
+                </option>
               ))}
             </select>
           </div>
 
           {role === 'employee' && (
             <div className="mb-6">
-              <label className="block text-gray-700 text-sm font-medium mb-2">Sub-Unit *</label>
+              <label className="block text-gray-700 text-sm font-medium mb-2">
+                Sub-Unit *
+              </label>
+
               <select
                 value={subUnit}
-                onChange={(e) => setSubUnit(e.target.value as SubUnitType)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={(e) => setSubUnit(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
               >
-                <option value="">Select sub-unit</option>
-                {availableSubUnits.map(unit => (
-                  <option key={unit} value={unit}>{unit}</option>
+                <option value="" disabled>
+                  Select Sub-unit
+                </option>
+
+                {subUnits.map((unit) => (
+                  <option key={unit.ID} value={unit.SubUnit}>
+                    {unit.SubUnit}
+                  </option>
                 ))}
               </select>
             </div>

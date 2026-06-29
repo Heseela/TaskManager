@@ -7,20 +7,23 @@ import { TaskCategory, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types'
 interface AssignTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  employees: Array<{ id: string; name: string; subUnit?: SubUnitType }>;
+  employees: Array<{
+    id: string;
+    name: string;
+    subUnit?: SubUnitType;
+  }>;
   onSubmit: (taskData: any) => void;
 }
 
 export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }: AssignTaskModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [assignedTo, setAssignedTo] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [dueDate, setDueDate] = useState('');
   const [category, setCategory] = useState<TaskCategory | ''>('');
-
+  const [assignedTo, setAssignedTo] = useState<number | ''>('');
   const selectedEmployee = employees.find(emp => emp.id === assignedTo);
-  const availableCategories = selectedEmployee?.subUnit 
+  const availableCategories = selectedEmployee?.subUnit
     ? TASK_CATEGORIES_BY_SUB_UNIT[selectedEmployee.subUnit] || []
     : [];
 
@@ -56,7 +59,7 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
             ✕
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-gray-700 font-medium mb-2">Task Title *</label>
@@ -86,11 +89,9 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
             <select
               value={assignedTo}
               onChange={(e) => {
-                setAssignedTo(e.target.value);
+                setAssignedTo(Number(e.target.value));
                 setCategory('');
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
-              required
             >
               <option value="">Select employee</option>
               {employees.map(emp => (

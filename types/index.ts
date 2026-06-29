@@ -1,5 +1,5 @@
 export interface User {
-  id: string;
+  id: number;
   email: string;
   name: string;
   password: string;
@@ -9,8 +9,8 @@ export interface User {
 }
 
 export interface Report {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
   userName: string;
   date: string;
   tasks: string[];
@@ -20,14 +20,14 @@ export interface Report {
   tomorrowPlan: string[];
   status: 'pending' | 'submitted' | 'reviewed';
   submittedAt: string;
-}
+} 
 
 export interface Task {
-  id: string;
+  id: number;
   title: string;
   description: string;
-  assignedBy: string; 
-  assignedTo: string; 
+  assignedBy: number;
+  assignedTo: number;
   assignedToName: string;
   assignedByName: string;
   status: 'pending' | 'in-progress' | 'completed';
@@ -39,7 +39,7 @@ export interface Task {
 }
 
 export interface SafeUser {
-  id: string;
+  id: number;
   name: string;
   email: string;
   role: 'supervisor' | 'employee';
@@ -48,6 +48,18 @@ export interface SafeUser {
 }
 
 export type DepartmentType = 'IT';
+
+export interface Department {
+  ID: number;
+  DepName: string;
+  DepCode: string;
+}
+
+export interface SubUnit {
+  ID: number;
+  DepID: number;
+  SubUnit: SubUnitType;
+}
 
 export type SubUnitType = 
   | 'Developer' 
@@ -109,4 +121,23 @@ export interface DailyReport extends Report {}
 export interface AuthResponse {
   user: SafeUser | null;
   error?: string;
+}
+
+export interface SystemStats {
+  totalUsers: number;
+  totalTasks: number;
+  totalReports: number;
+  totalDepartments: number;
+  totalSubUnits: number;
+  activeUsers: number;
+  tasksByStatus: {
+    pending: number;
+    'in-progress': number;
+    completed: number;
+  };
+  reportsByStatus: {
+    pending: number;
+    submitted: number;
+    reviewed: number;
+  };
 }

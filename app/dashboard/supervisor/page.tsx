@@ -6,14 +6,20 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import TaskList from '@/components/dashboard/TaskList';
 import AssignTaskModal from '@/components/dashboard/AssignTaskModal';
-import { DailyReport, Task } from '@/types';
+import { DailyReport, Task, SubUnitType } from '@/types';
 import { ClipboardList, Users } from 'lucide-react';
+
+interface Employee {
+  id: string;
+  name: string;
+  subUnit?: SubUnitType;
+}
 
 export default function SupervisorDashboardPage() {
   const { data: session } = useSession();
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [employees, setEmployees] = useState<Array<{ id: string; name: string }>>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'reports' | 'tasks'>('reports');
   const [isLoading, setIsLoading] = useState(true);
@@ -25,20 +31,28 @@ export default function SupervisorDashboardPage() {
       try {
         setIsLoading(true);
         
+        // Fetch reports
         const reportsRes = await fetch('/api/reports');
         if (!reportsRes.ok) throw new Error('Failed to fetch reports');
         const reportsData = await reportsRes.json();
         setReports(reportsData);
 
+        // Fetch tasks
         const tasksRes = await fetch('/api/tasks');
         if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
         const tasksData = await tasksRes.json();
         setTasks(tasksData);
 
+        // Fetch employees
         const employeesRes = await fetch('/api/employees');
         if (employeesRes.ok) {
           const employeesData = await employeesRes.json();
-          setEmployees(employeesData);
+          // Ensure subUnit is properly typed
+          const typedEmployees = employeesData.map((emp: any) => ({
+            ...emp,
+            subUnit: emp.subUnit as SubUnitType | undefined
+          }));
+          setEmployees(typedEmployees);
         }
       } catch (err) {
         setError('Failed to load data');
@@ -67,6 +81,7 @@ export default function SupervisorDashboardPage() {
       setTasks([newTask, ...tasks]);
       setSuccessMessage('Task assigned successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
+      setIsModalOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to assign task');
     }
@@ -140,51 +155,51 @@ export default function SupervisorDashboardPage() {
         </div>
 
         <div className="bg-gray-100 p-1 rounded-xl mb-6">
-  <nav className="flex gap-1" role="tablist">
-    <button
-      onClick={() => setActiveTab('reports')}
-      className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
-        activeTab === 'reports'
-          ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
-          : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-      }`}
-      role="tab"
-      aria-selected={activeTab === 'reports'}
-    >
-      <div className="flex items-center justify-center gap-2">
-        <Users className={`w-4 h-4 transition-colors ${
-          activeTab === 'reports' ? 'text-[#0088D0]' : 'text-gray-400'
-        }`} />
-        <span>Team Reports</span>
-      </div>
-    </button>
-    
-    <button
-      onClick={() => setActiveTab('tasks')}
-      className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
-        activeTab === 'tasks'
-          ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
-          : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-      }`}
-      role="tab"
-      aria-selected={activeTab === 'tasks'}
-    >
-      <div className="flex items-center justify-center gap-2">
-        <ClipboardList className={`w-4 h-4 transition-colors ${
-          activeTab === 'tasks' ? 'text-[#0088D0]' : 'text-gray-400'
-        }`} />
-        <span>Assigned Tasks</span>
-        <span className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${
-          activeTab === 'tasks'
-            ? 'bg-[#0088D0]/10 text-[#0088D0]'
-            : 'bg-gray-200 text-gray-600'
-        }`}>
-          {tasks.length}
-        </span>
-      </div>
-    </button>
-  </nav>
-</div>
+          <nav className="flex gap-1" role="tablist">
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
+                activeTab === 'reports'
+                  ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+              }`}
+              role="tab"
+              aria-selected={activeTab === 'reports'}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <Users className={`w-4 h-4 transition-colors ${
+                  activeTab === 'reports' ? 'text-[#0088D0]' : 'text-gray-400'
+                }`} />
+                <span>Team Reports</span>
+              </div>
+            </button>
+            
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
+                activeTab === 'tasks'
+                  ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+              }`}
+              role="tab"
+              aria-selected={activeTab === 'tasks'}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <ClipboardList className={`w-4 h-4 transition-colors ${
+                  activeTab === 'tasks' ? 'text-[#0088D0]' : 'text-gray-400'
+                }`} />
+                <span>Assigned Tasks</span>
+                <span className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${
+                  activeTab === 'tasks'
+                    ? 'bg-[#0088D0]/10 text-[#0088D0]'
+                    : 'bg-gray-200 text-gray-600'
+                }`}>
+                  {tasks.length}
+                </span>
+              </div>
+            </button>
+          </nav>
+        </div>
       </div>
 
       {activeTab === 'reports' ? (
@@ -211,7 +226,7 @@ export default function SupervisorDashboardPage() {
 
 function ReportsSection({ reports }: { reports: DailyReport[] }) {
   const [selectedDate, setSelectedDate] = useState<string>('all');
-  const [selectedEmployee, setSelectedEmployee] = useState('all');
+  const [selectedEmployee, setSelectedEmployee] = useState<string>('all');
 
   const sortedReports = [...reports].sort((a, b) =>
     new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -219,12 +234,12 @@ function ReportsSection({ reports }: { reports: DailyReport[] }) {
 
   const filteredReports = sortedReports.filter(report => {
     const dateMatch = selectedDate === 'all' || report.date === selectedDate;
-    const employeeMatch = selectedEmployee === 'all' || report.userId === selectedEmployee;
+    const employeeMatch = selectedEmployee === 'all' || String(report.userId) === selectedEmployee;
     return dateMatch && employeeMatch;
   });
 
   const uniqueDates = [...new Map(reports.map(r => [r.date, r.date])).keys()].sort().reverse();
-  const uniqueEmployees = [...new Map(reports.map(r => [r.userId, r.userName])).entries()]
+  const uniqueEmployees = [...new Map(reports.map(r => [String(r.userId), r.userName])).entries()]
     .map(([id, name]) => ({ id, name }));
 
   return (
