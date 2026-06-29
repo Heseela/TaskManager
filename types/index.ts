@@ -20,7 +20,10 @@ export interface Report {
   tomorrowPlan: string[];
   status: 'pending' | 'submitted' | 'reviewed';
   submittedAt: string;
-} 
+  subUnit?: string; 
+  department?: string; // for supervisor view
+  userSubUnit?: string; // for supervisor view
+}
 
 export interface Task {
   id: number;
@@ -69,38 +72,47 @@ export type SubUnitType =
   | 'CBS'
   | 'CTO';
 
+
+export interface TaskCategoryDB {
+  ID: number;
+  SubUnitID: number;
+  CategoryName: TaskCategory;
+  CreatedAt: string;
+}
+
+export interface SubUnitWithCategories {
+  ID: number;
+  SubUnit: SubUnitType;
+  Categories: TaskCategory[];
+}
+
 export type TaskCategory = 
-  // Network
   | 'PRTG Scan' 
   | 'Network Policy' 
   | 'Internet Allow' 
   | 'Server Network Configuration'
-
-  // Developer
   | 'Application Development' 
   | 'Database' 
   | 'Query' 
   | 'App/Db Server Monitor' 
   | 'Email Job for Report'
-
-  // Support
   | 'Printer Setup' 
   | 'User Access' 
   | 'PC Setup' 
   | 'Email Setup' 
   | 'Camera Monitoring' 
   | 'Domain Setup'
-
-  // Infra
   | 'Server Setup' 
   | 'VMware Monitoring' 
   | 'Server Hardening' 
   | 'DCIM Monitoring'
-
-  // CBS
   | 'Pumori' 
   | 'CBS Configuration' 
-  | 'CBS Monitoring';
+  | 'CBS Monitoring'
+  | 'Tech Support'
+  | 'Hardware Setup'
+  | 'Data Reconciliation'
+  | 'Report Generation';
 
 export const DEPARTMENTS = ['IT'] as const;
 

@@ -6,7 +6,7 @@ export async function getAllTasks() {
 
   const result = await pool.request().query(`
     SELECT *
-    FROM TaskTable
+    FROM AssignTask
     ORDER BY createdAt DESC
   `);
 
@@ -21,7 +21,7 @@ export async function getTasksBySupervisor(userId: number) {
     .input('userId', sql.Int, userId)
     .query(`
       SELECT *
-      FROM TaskTable
+      FROM AssignTask
       WHERE assignedBy = @userId
       ORDER BY createdAt DESC
     `);
@@ -37,7 +37,7 @@ export async function getTasksByEmployee(userId: number) {
     .input('userId', sql.Int, userId)
     .query(`
       SELECT *
-      FROM TaskTable
+      FROM AssignTask
       WHERE assignedTo = @userId
       ORDER BY createdAt DESC
     `);
@@ -53,7 +53,7 @@ export async function getTaskById(id: number) {
     .input('id', sql.Int, id)
     .query(`
       SELECT *
-      FROM TaskTable
+      FROM AssignTask
       WHERE id = @id
     `);
 
@@ -87,7 +87,7 @@ export async function createTask(task: {
     .input('dueDate', sql.Date, task.dueDate || null)
     .input('category', sql.VarChar, task.category || null)
     .query(`
-      INSERT INTO TaskTable
+      INSERT INTO AssignTask
       (
         title,
         description,
@@ -134,7 +134,7 @@ export async function updateTask(
     .input('id', sql.Int, taskId)
     .input('status', sql.VarChar, status)
     .query(`
-      UPDATE TaskTable
+      UPDATE AssignTask
       SET
         status = @status,
         updatedAt = GETDATE()

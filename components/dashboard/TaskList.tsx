@@ -2,11 +2,13 @@
 
 import { Task } from '@/types';
 import Card from '../ui/Card';
+import { format } from 'date-fns';
+import { formatDateTime } from '@/global/dateUtils';
 
 interface TaskListProps {
   tasks: Task[];
   userRole: string;
-  onStatusUpdate?: (taskId: string, status: Task['status']) => void;
+  onStatusUpdate?: (taskId: number, status: Task['status']) => void;
 }
 
 const statusColors = {
@@ -63,31 +65,65 @@ export default function TaskList({ tasks, userRole, onStatusUpdate }: TaskListPr
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h3 className="font-semibold text-gray-800">{task.title}</h3>
+                  <h3 className="capitalize font-semibold text-gray-800">{task.title}</h3>
                   {getPriorityBadge(task.priority)}
                 </div>
                 {task.description && (
                   <p className="text-gray-600 text-sm mb-3">{task.description}</p>
+                )}
+                {task.category && (
+                  <p className="text-sm text-gray-500 mb-2">
+                    Category: <span className="font-medium">{task.category}</span>
+                  </p>
                 )}
                 <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                   <div className="flex items-center gap-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span>Assigned to: {task.assignedToName}</span>
+                    <span>
+                      Assigned by:{' '}
+                      <span className="font-medium">
+                        {task.assignedByName.charAt(0).toUpperCase() +
+                          task.assignedByName.slice(1)}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span>
+                      Assigned to:{' '}
+                      <span className="font-medium">
+                        {task.assignedToName.charAt(0).toUpperCase() +
+                          task.assignedToName.slice(1)}
+                      </span>
+                    </span>
                   </div>
                   {task.dueDate && (
                     <div className="flex items-center gap-1">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                      <span>Due: {new Date(task.dueDate).toLocaleDateString()}</span>
+                      <span>
+                        Due: {format(new Date(task.dueDate), 'MMM d, yyyy')}
+                      </span>
                     </div>
                   )}
                 </div>
               </div>
               <div className="text-right">
                 {getStatusBadge(task.status)}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 text-xs text-gray-400 border-t border-gray-100 mt-8">
+              <div>
+                Created At: <span className="font-medium">{formatDateTime(task.createdAt)}</span>
+              </div>
+              <div>
+                Updated At: <span className="font-medium">{formatDateTime(task.updatedAt)}</span>
               </div>
             </div>
 

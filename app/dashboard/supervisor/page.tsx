@@ -5,9 +5,11 @@ import { useSession } from 'next-auth/react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import TaskList from '@/components/dashboard/TaskList';
-import AssignTaskModal from '@/components/dashboard/AssignTaskModal';
+import AssignTaskModal from '@/components/dashboard/supervisor/AssignTaskModal';
 import { DailyReport, Task, SubUnitType } from '@/types';
 import { ClipboardList, Users } from 'lucide-react';
+import { format } from 'date-fns';
+import { formatTime } from '@/global/dateUtils';
 
 interface Employee {
   id: string;
@@ -30,7 +32,7 @@ export default function SupervisorDashboardPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        
+
         // Fetch reports
         const reportsRes = await fetch('/api/reports');
         if (!reportsRes.ok) throw new Error('Failed to fetch reports');
@@ -47,9 +49,10 @@ export default function SupervisorDashboardPage() {
         const employeesRes = await fetch('/api/employees');
         if (employeesRes.ok) {
           const employeesData = await employeesRes.json();
-          // Ensure subUnit is properly typed
+          console.log('Employees data:', employeesData);
           const typedEmployees = employeesData.map((emp: any) => ({
             ...emp,
+            id: String(emp.id),
             subUnit: emp.subUnit as SubUnitType | undefined
           }));
           setEmployees(typedEmployees);
@@ -76,7 +79,7 @@ export default function SupervisorDashboardPage() {
       });
 
       if (!response.ok) throw new Error('Failed to assign task');
-      
+
       const newTask = await response.json();
       setTasks([newTask, ...tasks]);
       setSuccessMessage('Task assigned successfully!');
@@ -87,11 +90,13 @@ export default function SupervisorDashboardPage() {
     }
   };
 
+  const today = new Date().toLocaleDateString('en-CA');
+
   const todayReports = reports.filter(
-    r => r.date === new Date().toISOString().split('T')[0]
+    r => String(r.date).slice(0, 10) === today
   );
   const uniqueEmployees = [...new Map(reports.map(r => [r.userId, r.userName])).entries()];
-  const avgHoursPerDay = reports.length > 0 
+  const avgHoursPerDay = reports.length > 0
     ? (reports.reduce((sum, r) => sum + r.hoursWorked, 0) / reports.length).toFixed(1)
     : '0';
 
@@ -158,42 +163,37 @@ export default function SupervisorDashboardPage() {
           <nav className="flex gap-1" role="tablist">
             <button
               onClick={() => setActiveTab('reports')}
-              className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
-                activeTab === 'reports'
-                  ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-              }`}
+              className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${activeTab === 'reports'
+                ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                }`}
               role="tab"
               aria-selected={activeTab === 'reports'}
             >
               <div className="flex items-center justify-center gap-2">
-                <Users className={`w-4 h-4 transition-colors ${
-                  activeTab === 'reports' ? 'text-[#0088D0]' : 'text-gray-400'
-                }`} />
+                <Users className={`w-4 h-4 transition-colors ${activeTab === 'reports' ? 'text-[#0088D0]' : 'text-gray-400'
+                  }`} />
                 <span>Team Reports</span>
               </div>
             </button>
-            
+
             <button
               onClick={() => setActiveTab('tasks')}
-              className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${
-                activeTab === 'tasks'
-                  ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-              }`}
+              className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${activeTab === 'tasks'
+                ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
+                }`}
               role="tab"
               aria-selected={activeTab === 'tasks'}
             >
               <div className="flex items-center justify-center gap-2">
-                <ClipboardList className={`w-4 h-4 transition-colors ${
-                  activeTab === 'tasks' ? 'text-[#0088D0]' : 'text-gray-400'
-                }`} />
+                <ClipboardList className={`w-4 h-4 transition-colors ${activeTab === 'tasks' ? 'text-[#0088D0]' : 'text-gray-400'
+                  }`} />
                 <span>Assigned Tasks</span>
-                <span className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${
-                  activeTab === 'tasks'
-                    ? 'bg-[#0088D0]/10 text-[#0088D0]'
-                    : 'bg-gray-200 text-gray-600'
-                }`}>
+                <span className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${activeTab === 'tasks'
+                  ? 'bg-[#0088D0]/10 text-[#0088D0]'
+                  : 'bg-gray-200 text-gray-600'
+                  }`}>
                   {tasks.length}
                 </span>
               </div>
@@ -227,15 +227,20 @@ export default function SupervisorDashboardPage() {
 function ReportsSection({ reports }: { reports: DailyReport[] }) {
   const [selectedDate, setSelectedDate] = useState<string>('all');
   const [selectedEmployee, setSelectedEmployee] = useState<string>('all');
+  const [selectedSubUnit, setSelectedSubUnit] = useState<string>('all');
 
   const sortedReports = [...reports].sort((a, b) =>
     new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
+  // Get unique subunits from reports
+  const uniqueSubUnits = [...new Set(reports.map(r => r.subUnit).filter(Boolean))];
+
   const filteredReports = sortedReports.filter(report => {
     const dateMatch = selectedDate === 'all' || report.date === selectedDate;
     const employeeMatch = selectedEmployee === 'all' || String(report.userId) === selectedEmployee;
-    return dateMatch && employeeMatch;
+    const subUnitMatch = selectedSubUnit === 'all' || report.subUnit === selectedSubUnit;
+    return dateMatch && employeeMatch && subUnitMatch;
   });
 
   const uniqueDates = [...new Map(reports.map(r => [r.date, r.date])).keys()].sort().reverse();
@@ -244,8 +249,8 @@ function ReportsSection({ reports }: { reports: DailyReport[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex gap-4 mb-6">
-        <div className="flex-1">
+      <div className="flex flex-wrap gap-4 mb-6">
+        <div className="flex-1 min-w-[150px]">
           <label className="block text-gray-700 text-sm font-medium mb-1">Filter by Date</label>
           <select
             value={selectedDate}
@@ -254,11 +259,13 @@ function ReportsSection({ reports }: { reports: DailyReport[] }) {
           >
             <option value="all">All Dates</option>
             {uniqueDates.map(date => (
-              <option key={date} value={date}>{date}</option>
+              <option key={date} value={date}>
+                 {format(new Date(date), 'MMM d, yyyy')}
+              </option>
             ))}
           </select>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 min-w-[150px]">
           <label className="block text-gray-700 text-sm font-medium mb-1">Filter by Employee</label>
           <select
             value={selectedEmployee}
@@ -267,7 +274,25 @@ function ReportsSection({ reports }: { reports: DailyReport[] }) {
           >
             <option value="all">All Employees</option>
             {uniqueEmployees.map(emp => (
-              <option key={emp.id} value={emp.id}>{emp.name}</option>
+              <option key={emp.id} value={emp.id}>
+                {emp.name
+                  .split(' ')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                  .join(' ')}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex-1 min-w-[150px]">
+          <label className="block text-gray-700 text-sm font-medium mb-1">Filter by Sub-Unit</label>
+          <select
+            value={selectedSubUnit}
+            onChange={(e) => setSelectedSubUnit(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+          >
+            <option value="all">All Sub-Units</option>
+            {uniqueSubUnits.map(subUnit => (
+              <option key={subUnit} value={subUnit}>{subUnit}</option>
             ))}
           </select>
         </div>
@@ -290,7 +315,9 @@ function ReportsSection({ reports }: { reports: DailyReport[] }) {
               }, {} as Record<string, DailyReport[]>)
             ).map(([date, dateReports]) => (
               <div key={date}>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3">{date}</h3>
+                <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                 {format(new Date(date), 'EEE - MMM d, yyyy')}
+                </h3>
                 <div className="space-y-4">
                   {dateReports.map(report => (
                     <ReportCard key={report.id} report={report} />
@@ -315,12 +342,24 @@ function ReportCard({ report }: { report: DailyReport }) {
       <div className="space-y-4">
         <div className="flex justify-between items-start pb-3 border-b border-gray-100">
           <div>
-            <h4 className="font-semibold text-gray-800">{report.userName}</h4>
-            <p className="text-sm text-gray-500">
-              Submitted: {new Date(report.submittedAt).toLocaleString()}
-            </p>
+            <h4 className="capitalize font-semibold text-gray-800">{report.userName}</h4>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mt-1">
+              <span>{report.subUnit || 'N/A'}</span>
+              <span>•</span>
+              <span>
+                Submitted At{': '}
+                {formatTime(report.submittedAt)}
+              </span>
+            </div>
           </div>
-          <span className="text-sm font-medium text-gray-600">{report.hoursWorked} hours</span>
+          <div className="text-right">
+            <span className="text-sm font-medium text-gray-600">{report.hoursWorked} hours</span>
+            <div className="mt-1">
+              <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                {report.status}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -332,6 +371,13 @@ function ReportCard({ report }: { report: DailyReport }) {
           </ul>
         </div>
 
+        {report.taskDescription && (
+          <div>
+            <h5 className="font-medium text-gray-700 mb-2">Task Description</h5>
+            <p className="text-gray-600 text-sm">{report.taskDescription}</p>
+          </div>
+        )}
+
         {report.challenges && (
           <div>
             <h5 className="font-medium text-gray-700 mb-2">Challenges</h5>
@@ -339,14 +385,16 @@ function ReportCard({ report }: { report: DailyReport }) {
           </div>
         )}
 
-        <div>
-          <h5 className="font-medium text-gray-700 mb-2">Tomorrow's Plan</h5>
-          <ul className="list-disc list-inside space-y-1">
-            {report.tomorrowPlan.map((plan, idx) => (
-              <li key={idx} className="text-gray-600 text-sm">{plan}</li>
-            ))}
-          </ul>
-        </div>
+        {report.tomorrowPlan && report.tomorrowPlan.length > 0 && (
+          <div>
+            <h5 className="font-medium text-gray-700 mb-2">Tomorrow's Plan</h5>
+            <ul className="list-disc list-inside space-y-1">
+              {report.tomorrowPlan.map((plan, idx) => (
+                <li key={idx} className="text-gray-600 text-sm">{plan}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </Card>
   );

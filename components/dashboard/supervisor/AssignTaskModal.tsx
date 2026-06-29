@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Button from '../ui/Button';
+import Button from '../../ui/Button';
 import { TaskCategory, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types';
 
 interface AssignTaskModalProps {
@@ -21,7 +21,7 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [dueDate, setDueDate] = useState('');
   const [category, setCategory] = useState<TaskCategory | ''>('');
-  const [assignedTo, setAssignedTo] = useState<number | ''>('');
+  const [assignedTo, setAssignedTo] = useState<string>('');
   const selectedEmployee = employees.find(emp => emp.id === assignedTo);
   const availableCategories = selectedEmployee?.subUnit
     ? TASK_CATEGORIES_BY_SUB_UNIT[selectedEmployee.subUnit] || []
@@ -30,15 +30,18 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const selectedEmployee = employees.find(emp => emp.id === assignedTo);
+    if (!selectedEmployee) return;
+
     onSubmit({
       title,
       description,
-      assignedTo,
-      assignedToName: selectedEmployee?.name || '',
+      assignedTo: Number(selectedEmployee.id),
+      assignedToName: selectedEmployee.name,
       priority,
       dueDate,
       category: category || undefined,
     });
+
     setTitle('');
     setDescription('');
     setAssignedTo('');
@@ -51,8 +54,8 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-800">Assign New Task</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
@@ -89,14 +92,19 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
             <select
               value={assignedTo}
               onChange={(e) => {
-                setAssignedTo(Number(e.target.value));
+                setAssignedTo(e.target.value);
                 setCategory('');
               }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+              required
             >
               <option value="">Select employee</option>
               {employees.map(emp => (
                 <option key={emp.id} value={emp.id}>
-                  {emp.name} {emp.subUnit ? `(${emp.subUnit})` : ''}
+                  {emp.name
+                    .toLowerCase()
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}
+                  {emp.subUnit ? ` (${emp.subUnit})` : ''}
                 </option>
               ))}
             </select>
