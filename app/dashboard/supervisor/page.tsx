@@ -6,11 +6,13 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import TaskList from '@/components/dashboard/TaskList';
 import AssignTaskModal from '@/components/dashboard/supervisor/AssignTaskModal';
-import AddTaskCategoryModal from '@/components/dashboard/supervisor/AddTaskCategoryModal';
+// import AddTaskCategoryModal from '@/components/dashboard/supervisor/AddTaskCategoryModal';
 import { DailyReport, Task, SubUnitType } from '@/types';
-import { ClipboardList, Users } from 'lucide-react';
+import { ClipboardList, Tag, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { formatTime } from '@/global/dateUtils';
+import TaskCategoriesModal from '@/components/dashboard/supervisor/TaskCategoriesModal';
+import Link from 'next/link';
 
 interface Employee {
   id: string;
@@ -24,11 +26,13 @@ export default function SupervisorDashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  // const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'reports' | 'tasks'>('reports');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+
 
   const fetchData = async () => {
     try {
@@ -114,13 +118,16 @@ export default function SupervisorDashboardPage() {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="dashboard-title">Supervisor Dashboard</h2>
-          <div className='flex gap-4'>
+          <div className='flex items-center gap-4'>
             <Button onClick={() => setIsAssignModalOpen(true)}>
               + Assign New Task
             </Button>
-            <Button variant="secondary" onClick={() => setIsCategoryModalOpen(true)}>
-              + Add Task Category
-            </Button>
+            <Link href="/dashboard/supervisor/task-categories">
+              <Button variant="secondary" className="flex items-center gap-2">
+                <Tag className="w-4 h-4" />
+                Task Categories
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -233,11 +240,17 @@ export default function SupervisorDashboardPage() {
         onSubmit={handleAssignTask}
       />
 
+      <TaskCategoriesModal
+        isOpen={isCategoriesModalOpen}
+        onClose={() => setIsCategoriesModalOpen(false)}
+        onCategoryAdded={handleCategoryAdded}
+      />
+      {/* 
       <AddTaskCategoryModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}
         onCategoryAdded={handleCategoryAdded}
-      />
+      /> */}
     </div>
   );
 }
@@ -278,7 +291,7 @@ function ReportsSection({ reports }: { reports: DailyReport[] }) {
             <option value="all">All Dates</option>
             {uniqueDates.map(date => (
               <option key={date} value={date}>
-                 {format(new Date(date), 'MMM d, yyyy')}
+                {format(new Date(date), 'MMM d, yyyy')}
               </option>
             ))}
           </select>
@@ -334,7 +347,7 @@ function ReportsSection({ reports }: { reports: DailyReport[] }) {
             ).map(([date, dateReports]) => (
               <div key={date}>
                 <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                 {format(new Date(date), 'EEE - MMM d, yyyy')}
+                  {format(new Date(date), 'EEE - MMM d, yyyy')}
                 </h3>
                 <div className="space-y-4">
                   {dateReports.map(report => (
