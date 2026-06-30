@@ -6,6 +6,7 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import TaskList from '@/components/dashboard/TaskList';
 import AssignTaskModal from '@/components/dashboard/supervisor/AssignTaskModal';
+import AddTaskCategoryModal from '@/components/dashboard/supervisor/AddTaskCategoryModal';
 import { DailyReport, Task, SubUnitType } from '@/types';
 import { ClipboardList, Users } from 'lucide-react';
 import { format } from 'date-fns';
@@ -22,48 +23,49 @@ export default function SupervisorDashboardPage() {
   const [reports, setReports] = useState<DailyReport[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'reports' | 'tasks'>('reports');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
 
-        // Fetch reports
-        const reportsRes = await fetch('/api/reports');
-        if (!reportsRes.ok) throw new Error('Failed to fetch reports');
-        const reportsData = await reportsRes.json();
-        setReports(reportsData);
+      // Fetch reports
+      const reportsRes = await fetch('/api/reports');
+      if (!reportsRes.ok) throw new Error('Failed to fetch reports');
+      const reportsData = await reportsRes.json();
+      setReports(reportsData);
 
-        // Fetch tasks
-        const tasksRes = await fetch('/api/tasks');
-        if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
-        const tasksData = await tasksRes.json();
-        setTasks(tasksData);
+      // Fetch tasks
+      const tasksRes = await fetch('/api/tasks');
+      if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
+      const tasksData = await tasksRes.json();
+      setTasks(tasksData);
 
-        // Fetch employees
-        const employeesRes = await fetch('/api/employees');
-        if (employeesRes.ok) {
-          const employeesData = await employeesRes.json();
-          const typedEmployees = employeesData.map((emp: any) => ({
-            ...emp,
-            id: String(emp.id),
-            subUnit: emp.subUnit as SubUnitType | undefined
-          }));
-          setEmployees(typedEmployees);
-        }
-      } catch (err) {
-        setError('Failed to load data');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
+      // Fetch employees
+      const employeesRes = await fetch('/api/employees');
+      if (employeesRes.ok) {
+        const employeesData = await employeesRes.json();
+        const typedEmployees = employeesData.map((emp: any) => ({
+          ...emp,
+          id: String(emp.id),
+          subUnit: emp.subUnit as SubUnitType | undefined
+        }));
+        setEmployees(typedEmployees);
       }
-    };
+    } catch (err) {
+      setError('Failed to load data');
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (session?.user?.role === 'supervisor') {
       fetchData();
     }
@@ -83,10 +85,16 @@ export default function SupervisorDashboardPage() {
       setTasks([newTask, ...tasks]);
       setSuccessMessage('Task assigned successfully!');
       setTimeout(() => setSuccessMessage(''), 3000);
-      setIsModalOpen(false);
+      setIsAssignModalOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to assign task');
     }
+  };
+
+  const handleCategoryAdded = () => {
+    // Refresh categories data if needed
+    setSuccessMessage('Category added successfully!');
+    setTimeout(() => setSuccessMessage(''), 3000);
   };
 
   const today = new Date().toLocaleDateString('en-CA');
@@ -106,9 +114,14 @@ export default function SupervisorDashboardPage() {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="dashboard-title">Supervisor Dashboard</h2>
-          <Button onClick={() => setIsModalOpen(true)}>
-            + Assign New Task
-          </Button>
+          <div className='flex gap-4'>
+            <Button onClick={() => setIsAssignModalOpen(true)}>
+              + Assign New Task
+            </Button>
+            <Button variant="secondary" onClick={() => setIsCategoryModalOpen(true)}>
+              + Add Task Category
+            </Button>
+          </div>
         </div>
 
         {successMessage && (
@@ -214,10 +227,16 @@ export default function SupervisorDashboardPage() {
       )}
 
       <AssignTaskModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
         employees={employees}
         onSubmit={handleAssignTask}
+      />
+
+      <AddTaskCategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        onCategoryAdded={handleCategoryAdded}
       />
     </div>
   );
