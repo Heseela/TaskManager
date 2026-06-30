@@ -23,7 +23,6 @@ export async function getDb() {
       });
 
       pool = await sql.connect(config);
-      console.log("Connected successfully");
     }
 
     return pool;

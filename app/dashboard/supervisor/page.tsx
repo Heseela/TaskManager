@@ -49,7 +49,6 @@ export default function SupervisorDashboardPage() {
         const employeesRes = await fetch('/api/employees');
         if (employeesRes.ok) {
           const employeesData = await employeesRes.json();
-          console.log('Employees data:', employeesData);
           const typedEmployees = employeesData.map((emp: any) => ({
             ...emp,
             id: String(emp.id),

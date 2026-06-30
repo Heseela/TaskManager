@@ -9,7 +9,7 @@ import { CheckSquare, FileText, Eye } from 'lucide-react';
 import TaskList from '@/components/dashboard/TaskList';
 import { format } from 'date-fns';
 import { formatDate, formatDateTime, formatTime } from '@/global/dateUtils';
- 
+
 export default function EmployeeDashboard() {
   const { data: session } = useSession();
   const [submittedReports, setSubmittedReports] = useState<DailyReport[]>([]);
@@ -120,7 +120,10 @@ export default function EmployeeDashboard() {
     <div className="space-y-8">
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          Welcome, {session?.user?.name} !
+          Welcome, {session?.user?.name
+            ?.split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ')}!        
         </h2>
         <div className="flex flex-wrap gap-4 text-sm text-gray-600">
           <span>Department: <strong className='capitalize'>{session?.user?.department}</strong></span>
@@ -232,14 +235,14 @@ export default function EmployeeDashboard() {
                             Report Date
                           </p>
                           <div className="font-semibold text-md text-gray-800">
-                           {format(new Date(report.date), 'MMM d, yyyy')}
+                            {format(new Date(report.date), 'MMM d, yyyy')}
                           </div>
                         </div>
 
                         <div className="text-right">
                           <p className="text-xs text-gray-400">Submitted</p>
                           <p className="font-medium text-[#0088D0]">
-                          {formatTime(report.submittedAt)}
+                            {formatTime(report.submittedAt)}
                           </p>
                         </div>
                       </div>

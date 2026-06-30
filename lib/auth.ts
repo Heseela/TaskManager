@@ -103,9 +103,6 @@ export const authOptions: NextAuthOptions = {
               department: user.department as DepartmentType,
               subUnit: user.subUnit as SubUnitType | undefined,
             };
-
-            console.log("AUTH USER:", authUser);
-
             return authUser;
         }
         
@@ -116,7 +113,6 @@ export const authOptions: NextAuthOptions = {
   
   callbacks: {
     async jwt({ token, user }) {
-      console.log("JWT input user ", user);
       if (user) {
           token.id = user.id as number;
        token.role = user.role as 'employee' | 'supervisor';
@@ -125,7 +121,6 @@ export const authOptions: NextAuthOptions = {
        token.department = user.department as DepartmentType;
        token.subUnit = user.subUnit as SubUnitType | undefined;
       }
-      console.log("JWT toek", token);
       return token;
     },
     async session({ session, token }) {
