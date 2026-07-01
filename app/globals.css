@@ -1,13 +1,11 @@
 @import "tailwindcss";
 
-@layer base {
   :root {
     --primary: #0088D0;
     --secondary: #981E52;
   }
-}
 
-@layer components {
+
   .btn-primary {
     @apply px-4 py-2 text-white transition-all duration-200 rounded-md hover:opacity-90;
     background-color: var(--primary);
@@ -29,4 +27,3 @@
   .dashboard-title {
     @apply text-2xl font-semibold mb-6 pb-3 border-b-2 border-[#0088D0];
   }
-}
