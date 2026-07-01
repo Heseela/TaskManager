@@ -6,7 +6,6 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import TaskList from '@/components/dashboard/TaskList';
 import AssignTaskModal from '@/components/dashboard/supervisor/AssignTaskModal';
-// import AddTaskCategoryModal from '@/components/dashboard/supervisor/AddTaskCategoryModal';
 import { DailyReport, Task, SubUnitType } from '@/types';
 import { ClipboardList, Tag, Users } from 'lucide-react';
 import { format } from 'date-fns';
@@ -26,7 +25,6 @@ export default function SupervisorDashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-  // const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'reports' | 'tasks'>('reports');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -38,19 +36,16 @@ export default function SupervisorDashboardPage() {
     try {
       setIsLoading(true);
 
-      // Fetch reports
       const reportsRes = await fetch('/api/reports');
       if (!reportsRes.ok) throw new Error('Failed to fetch reports');
       const reportsData = await reportsRes.json();
       setReports(reportsData);
 
-      // Fetch tasks
       const tasksRes = await fetch('/api/tasks');
       if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
       const tasksData = await tasksRes.json();
       setTasks(tasksData);
 
-      // Fetch employees
       const employeesRes = await fetch('/api/employees');
       if (employeesRes.ok) {
         const employeesData = await employeesRes.json();
@@ -96,7 +91,6 @@ export default function SupervisorDashboardPage() {
   };
 
   const handleCategoryAdded = () => {
-    // Refresh categories data if needed
     setSuccessMessage('Category added successfully!');
     setTimeout(() => setSuccessMessage(''), 3000);
   };
@@ -245,12 +239,6 @@ export default function SupervisorDashboardPage() {
         onClose={() => setIsCategoriesModalOpen(false)}
         onCategoryAdded={handleCategoryAdded}
       />
-      {/* 
-      <AddTaskCategoryModal
-        isOpen={isCategoryModalOpen}
-        onClose={() => setIsCategoryModalOpen(false)}
-        onCategoryAdded={handleCategoryAdded}
-      /> */}
     </div>
   );
 }

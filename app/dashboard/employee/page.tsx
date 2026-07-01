@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import DailyReportForm from '@/components/dashboard/employee/DailyReportForm';
 import Card from '@/components/ui/Card';
-import { DailyReport, Task, TaskCategory, SubUnitType } from '@/types';
+import { DailyReport, Task, TaskCategory } from '@/types';
 import { CheckSquare, FileText, Eye } from 'lucide-react';
 import TaskList from '@/components/dashboard/TaskList';
 import { format } from 'date-fns';
-import { formatDate, formatDateTime, formatTime } from '@/global/dateUtils';
+import { formatDate, formatTime } from '@/global/dateUtils';
+import toast from 'react-hot-toast';
 
 export default function EmployeeDashboard() {
   const { data: session } = useSession();
@@ -75,8 +76,11 @@ export default function EmployeeDashboard() {
       setSubmittedReports([newReport, ...submittedReports]);
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
+      
+      toast.success('Report submitted successfully!');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to submit report');
+      toast.error(err instanceof Error ? err.message : 'Failed to submit report');
     }
   };
 
@@ -96,10 +100,41 @@ export default function EmployeeDashboard() {
       setFilteredTasks(updatedTasks.filter(task =>
         !selectedCategory || task.category === selectedCategory
       ));
+      
+      if (status === 'completed') {
+        toast.success('Task marked as completed!');
+        const tasksRes = await fetch('/api/tasks');
+        if (tasksRes.ok) {
+          const tasksData = await tasksRes.json();
+          setTasks(tasksData);
+          setFilteredTasks(tasksData.filter((task: Task) =>
+            !selectedCategory || task.category === selectedCategory
+          ));
+        }
+      } else {
+        toast.success('Task status updated!');
+      }
+      
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update status');
+      toast.error(err instanceof Error ? err.message : 'Failed to update status');
+    }
+  };
+
+  const handleTaskCompleted = async (taskId: number) => {
+    try {
+      const tasksRes = await fetch('/api/tasks');
+      if (tasksRes.ok) {
+        const tasksData = await tasksRes.json();
+        setTasks(tasksData);
+        setFilteredTasks(tasksData.filter((task: Task) =>
+          !selectedCategory || task.category === selectedCategory
+        ));
+      }
+    } catch (err) {
+      console.error('Error refreshing tasks:', err);
     }
   };
 
@@ -216,7 +251,7 @@ export default function EmployeeDashboard() {
       </div>
 
       {activeTab === 'report' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
           <DailyReportForm onSubmit={handleSubmitReport} />
 
           <div className="space-y-6">
@@ -271,6 +306,7 @@ export default function EmployeeDashboard() {
             tasks={filteredTasks}
             userRole="employee"
             onStatusUpdate={handleStatusUpdate}
+            onTaskCompleted={handleTaskCompleted}
           />
         </div>
       )}

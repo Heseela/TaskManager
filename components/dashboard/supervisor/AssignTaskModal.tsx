@@ -367,9 +367,19 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <Button 
+              type="button" 
+              variant="primary" 
+              onClick={handleClose} 
+              className="flex-1"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
             <Button 
               type="submit" 
               className="flex-1"
+               variant="secondary" 
               disabled={isSubmitting || employees.length === 0}
             >
               {isSubmitting ? (
@@ -383,15 +393,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
               ) : (
                 'Assign Task'
               )}
-            </Button>
-            <Button 
-              type="button" 
-              variant="secondary" 
-              onClick={handleClose} 
-              className="flex-1"
-              disabled={isSubmitting}
-            >
-              Cancel
             </Button>
           </div>
         </form>
