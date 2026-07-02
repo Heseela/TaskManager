@@ -32,7 +32,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
-      <div className="relative overflow-hidden">
+      <div className="relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
           <div className="text-center">
             <div className="inline-flex items-center justify-center p-2 rounded-full mb-6" style={{ backgroundColor: '#0088D0'}}>

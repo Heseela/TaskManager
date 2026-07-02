@@ -1,6 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { db } from './db';
+import { db } from '@/lib/datasource';
+import { DepartmentType, SubUnitType } from '@/types';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -16,16 +17,17 @@ export const authOptions: NextAuthOptions = {
         }
 
         const user = await db.getUser(credentials.email);
-        
+
         if (user && user.password === credentials.password) {
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            department: user.department,
-            subUnit: user.subUnit,
-          };
+           const authUser = {
+              id: Number(user.id),
+              email: user.email,
+              name: user.name,
+              role: user.role as 'employee' | 'supervisor',
+              department: user.department as DepartmentType,
+              subUnit: user.subUnit as SubUnitType | undefined,
+            };
+            return authUser;
         }
         
         return null;
@@ -36,23 +38,23 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.name = user.name;
-        token.email = user.email;
-        token.department = user.department;
-        token.subUnit = user.subUnit;
+          token.id = user.id as number;
+       token.role = user.role as 'employee' | 'supervisor';
+       token.name = user.name;
+       token.email = user.email;
+       token.department = user.department as DepartmentType;
+       token.subUnit = user.subUnit as SubUnitType | undefined;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
+        session.user.id = token.id as number;
+        session.user.role = token.role as 'employee' | 'supervisor';
         session.user.name = token.name as string;
         session.user.email = token.email as string;
-        session.user.department = token.department as any;
-        session.user.subUnit = token.subUnit as any;
+        session.user.department = token.department as DepartmentType;
+        session.user.subUnit = token.subUnit as SubUnitType | undefined;
       }
       return session;
     },

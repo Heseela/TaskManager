@@ -23,8 +23,8 @@ export default function Header() {
 
           <div className="flex items-center space-x-4">
             <div className="hidden md:block text-right">
-              <p className="text-sm font-medium text-gray-900">{session?.user?.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{session?.user?.role}</p>
+              <p className="capitalize text-sm font-medium text-gray-900">{session?.user?.name}</p>
+              <p className="capitalize text-xs text-gray-500 capitalize">{session?.user?.role}</p>
             </div>
             <LogoutButton />
           </div>

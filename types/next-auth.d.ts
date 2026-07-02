@@ -1,36 +1,35 @@
-import 'next-auth';
-import 'next-auth/jwt';
-import { DepartmentType, SubUnitType } from '@/types';
+import NextAuth, { DefaultSession } from 'next-auth';
+import { DepartmentType, SubUnitType } from './index';
 
 declare module 'next-auth' {
-  interface User {
-    id: string;
-    role: string;
-    name: string;
-    email: string;
-    department: DepartmentType;
-    subUnit?: SubUnitType;
-  }
-  
   interface Session {
     user: {
-      id: string;
-      role: string;
-      name: string;
-      email: string;
-      department: DepartmentType;
+      id: number;
+      role: 'employee' | 'supervisor';
+      name?: string;
+      email?: string;
+      department?: DepartmentType;
       subUnit?: SubUnitType;
-    }
+    } & DefaultSession['user'];
+  }
+
+  interface User {
+    id: number;
+    role: 'employee' | 'supervisor';
+    name?: string;
+    email?: string;
+    department?: DepartmentType;
+    subUnit?: SubUnitType;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
-    id: string;
-    role: string;
+    id: number;
+    role: 'employee' | 'supervisor';
     name?: string;
     email?: string;
-    department: DepartmentType;
+    department?: DepartmentType;
     subUnit?: SubUnitType;
   }
 }
