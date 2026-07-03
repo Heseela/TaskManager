@@ -1,4 +1,3 @@
-// components/ui/SearchInput.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -24,28 +23,23 @@ export default function SearchInput({
   const [localValue, setLocalValue] = useState(value);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Update local value when prop value changes
   useEffect(() => {
     setLocalValue(value);
   }, [value]);
 
-  // Handle input change with debounce
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setLocalValue(newValue);
 
-    // Clear existing timer
     if (debounceTimer.current) {
       clearTimeout(debounceTimer.current);
     }
 
-    // Set new timer
     debounceTimer.current = setTimeout(() => {
       onChange(newValue);
     }, debounceDelay);
   };
 
-  // Handle clear
   const handleClear = () => {
     setLocalValue('');
     onChange('');
@@ -54,7 +48,6 @@ export default function SearchInput({
     }
   };
 
-  // Cleanup timer
   useEffect(() => {
     return () => {
       if (debounceTimer.current) {

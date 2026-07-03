@@ -62,7 +62,6 @@ export async function getAllCategoriesWithSubUnits() {
         ORDER BY u.SubUnit, c.CategoryName
       `);
 
-    // Group by subunit
     const grouped = result.recordset.reduce((acc: any, row: any) => {
       const key = row.SubUnitID;
       if (!acc[key]) {

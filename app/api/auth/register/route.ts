@@ -6,13 +6,11 @@ export async function GET(req: NextRequest) {
   try {
     const depId = req.nextUrl.searchParams.get("depId");
 
-    // subunits
     if (depId) {
       const subUnits = await getSubUnits(Number(depId));
       return NextResponse.json(subUnits);
     }
 
-    // departments
     const depList = await getDepartment();
     return NextResponse.json(depList);
   } catch (error: any) {
@@ -36,7 +34,6 @@ export async function POST(req: NextRequest) {
       subUnit
     } = body;
 
-    // Validate required fields 
     if (!email || !password || !name || !role || !department) {
       return NextResponse.json(
         {
@@ -45,7 +42,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate role 
     if (role !== 'employee' && role !== 'supervisor') {
       return NextResponse.json(
         {
@@ -55,7 +51,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Validate password length 
     if (password.length < 5) {
       return NextResponse.json(
         {
@@ -65,7 +60,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Employee must have subUnit 
     if (role === 'employee' && !subUnit) {
       return NextResponse.json(
         {
@@ -75,7 +69,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if email already exists 
     const existingUser = await getUser(email);
     if (existingUser) {
       return NextResponse.json(
@@ -86,13 +79,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-
-
-
-    // Generate ID 
     const userId = Date.now().toString()
 
-    // Insert into SQL Server 
     await createUser(
       name,
       email,

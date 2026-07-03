@@ -89,7 +89,6 @@ export default function AssignTaskPage() {
       return;
     }
 
-    // Check if session exists
     if (!session?.user) {
       toast.error('You must be logged in to assign tasks');
       return;
@@ -116,8 +115,6 @@ export default function AssignTaskPage() {
         category: formData.category || undefined,
       };
 
-      console.log('Sending task data:', taskData); // Debug log
-
       const response = await fetch('/api/tasks', {
         method: 'POST',
         headers: { 
@@ -127,7 +124,6 @@ export default function AssignTaskPage() {
       });
 
       const responseData = await response.json();
-      console.log('Response:', responseData); // Debug log
 
       if (response.ok) {
         toast.success('Task assigned successfully!', { id: loadingToast });

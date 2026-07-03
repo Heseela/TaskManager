@@ -82,7 +82,6 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
       const response = await fetch(`/api/tasks?userId=${userId}`);
       if (response.ok) {
         const data = await response.json();
-        // Filter tasks that are not completed
         const pendingTasks = data.filter((task: Task) => task.status !== 'completed');
         setAssignedTasks(pendingTasks);
       } else {
@@ -201,7 +200,6 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
 
   const handleFileUploaded = (file: { name: string; url: string }) => {
     setUploadedFiles(prev => [...prev, file]);
-    console.log('File uploaded:', file);
   };
 
   const handleFileRemoved = (index: number) => {
@@ -233,10 +231,8 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
         tomorrowPlan: tomorrowPlan.filter(p => p.trim()),
         subUnit: userSubUnit,
         taskDescription: taskDescription.trim(),
-        fileAttachments: uploadedFiles, // Make sure this is included
+        fileAttachments: uploadedFiles, 
       };
-
-      console.log('Submitting report with files:', reportData);
 
       onSubmit(reportData);
 
@@ -244,17 +240,15 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
         id: loadingToast,
       });
 
-      // Reset form
       setTasks(['']);
       setHoursWorked(8);
       setChallenges('');
       setTomorrowPlan(['']);
       setTaskDescription('');
-      setUploadedFiles([]); // Reset files after successful submission
+      setUploadedFiles([]); 
       setErrors({});
       setTouched({});
 
-      // Refresh assigned tasks after submission
       fetchAssignedTasks();
 
     } catch (error) {
@@ -271,22 +265,13 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
     return touched[field] || Object.keys(errors).length > 0;
   };
 
-  const getFieldError = (field: string): string => {
-    return errors[field as keyof FormErrors] || '';
-  };
-
-  const selectedTasksCount = tasks.filter(t => t.trim()).length;
-
-  // Combine categories and assigned tasks for the dropdown
   const getDropdownOptions = () => {
     const options: { value: string; label: string; type: 'category' | 'assigned' }[] = [];
 
-    // Add categories
     availableCategories.forEach(category => {
       options.push({ value: category, label: category, type: 'category' });
     });
 
-    // Add assigned tasks
     assignedTasks.forEach(task => {
       options.push({ value: task.title, label: `${task.title} (Assigned Task)`, type: 'assigned' });
     });

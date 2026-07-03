@@ -79,9 +79,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.log('Received report data:', body);
-    console.log('File attachments received:', body.fileAttachments);
-
     const report = await createReport({
       userId: Number(session.user.id),
       userName: session.user.name || 'Unknown',

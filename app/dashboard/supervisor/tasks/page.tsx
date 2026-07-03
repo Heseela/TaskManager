@@ -21,7 +21,6 @@ export default function SupervisorTasksPage() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
@@ -63,7 +62,7 @@ export default function SupervisorTasksPage() {
     }
 
     setFilteredTasks(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [filterStatus, filterEmployee, tasks]);
 
   const handleAssignTask = async (taskData: any) => {
@@ -136,7 +135,6 @@ export default function SupervisorTasksPage() {
     completed: tasks.filter(t => t.status === 'completed').length,
   };
 
-  // Pagination calculations
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredTasks.slice(indexOfFirstItem, indexOfLastItem);

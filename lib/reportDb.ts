@@ -70,12 +70,8 @@ export async function createReport(report: {
         const newReport = result.recordset[0];
         const reportId = newReport.ID;
 
-        console.log('Report created with ID:', reportId);
-        console.log('File attachments to save:', report.fileAttachments);
-
         if (report.fileAttachments && report.fileAttachments.length > 0) {
             for (const file of report.fileAttachments) {
-                console.log('Saving file:', file);
                 
                 const fileResult = await transaction
                     .request()
@@ -89,9 +85,7 @@ export async function createReport(report: {
                         VALUES
                         (@reportId, @name, @url)
                     `);
-                
-                console.log('File saved:', fileResult.recordset[0]);
-            }
+                }
         }
 
         await transaction.commit();
@@ -156,7 +150,6 @@ export async function getReportsByUser(userId: number): Promise<Report[]> {
         if (r.FileAttachments) {
             try {
                 const parsed = JSON.parse(r.FileAttachments);
-                // Map database column names to frontend property names
                 fileAttachments = parsed.map((file: any) => ({
                     id: file.ID,
                     reportId: file.ReportID,
@@ -188,7 +181,6 @@ export async function getReportsByUser(userId: number): Promise<Report[]> {
     return reports;
 }
 
-// Also update getAllReports function
 export async function getAllReports(): Promise<Report[]> {
     const pool = await getDb();
 
@@ -226,7 +218,6 @@ export async function getAllReports(): Promise<Report[]> {
         if (r.FileAttachments) {
             try {
                 const parsed = JSON.parse(r.FileAttachments);
-                // Map database column names to frontend property names
                 fileAttachments = parsed.map((file: any) => ({
                     id: file.ID,
                     reportId: file.ReportID,

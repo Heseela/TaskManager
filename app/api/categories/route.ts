@@ -32,7 +32,6 @@ export async function GET(request: Request) {
     const request_obj = pool.request();
 
     if (all === 'true') {
-      // Return all categories
       query += ` ORDER BY u.SubUnit, c.CategoryName`;
     } else if (subUnitName) {
       query += ` WHERE u.SubUnit = @subUnitName`;
@@ -85,7 +84,6 @@ export async function POST(request: Request) {
 
     const pool = await getDb();
 
-    // Check if category already exists
     const checkResult = await pool.request()
       .input('subUnitId', sql.Int, subUnitId)
       .input('categoryName', sql.VarChar, categoryName)
@@ -102,7 +100,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // Insert the new category
     const result = await pool.request()
       .input('subUnitId', sql.Int, subUnitId)
       .input('categoryName', sql.VarChar, categoryName)
@@ -159,7 +156,6 @@ export async function PUT(request: Request) {
 
     const pool = await getDb();
 
-    // Check if category exists
     const checkResult = await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
@@ -175,7 +171,6 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Update the category
     await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .input('categoryName', sql.VarChar, categoryName)
@@ -220,7 +215,6 @@ export async function DELETE(request: Request) {
 
     const pool = await getDb();
 
-    // Check if category exists
     const checkResult = await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
@@ -236,7 +230,6 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Delete the category
     await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`

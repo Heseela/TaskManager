@@ -54,14 +54,12 @@ export default function TaskCategoriesModal({
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch data when modal opens
   useEffect(() => {
     if (isOpen) {
       fetchAllData();
     }
   }, [isOpen]);
 
-  // Filter subunits when department changes
   useEffect(() => {
     if (selectedDepartmentId) {
       const filtered = subUnits.filter(su => Number(su.DepID) === selectedDepartmentId);
@@ -73,7 +71,6 @@ export default function TaskCategoriesModal({
     }
   }, [selectedDepartmentId, subUnits]);
 
-  // Filter categories by search and subunit
   useEffect(() => {
     let filtered = categories;
     

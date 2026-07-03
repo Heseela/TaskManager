@@ -34,39 +34,26 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<TaskCategory[]>([]);
 
-  // Debug: Log employees when they change
   useEffect(() => {
-    console.log('📋 Employees in modal:', employees);
   }, [employees]);
 
-  // Update available categories when employee changes
   useEffect(() => {
-    console.log('👤 AssignedTo changed to:', assignedTo);
     
     if (!assignedTo) {
-      console.log('❌ No employee selected, clearing categories');
       setAvailableCategories([]);
       setCategory('');
       return;
     }
 
-    // Find employee by comparing as string to handle both number and string IDs
     const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
-    console.log('✅ Selected employee:', selectedEmployee);
 
     if (selectedEmployee?.subUnit) {
-      console.log('🏷️ SubUnit found:', selectedEmployee.subUnit);
-      console.log('📚 Available SubUnit types:', Object.keys(TASK_CATEGORIES_BY_SUB_UNIT));
-      
-      // Cast the subUnit to SubUnitType
       const subUnitKey = selectedEmployee.subUnit as SubUnitType;
       const categories = TASK_CATEGORIES_BY_SUB_UNIT[subUnitKey] || [];
       
-      console.log('📝 Found categories:', categories);
       setAvailableCategories(categories);
       setCategory('');
     } else {
-      console.log('⚠️ No subunit found for employee');
       setAvailableCategories([]);
       setCategory('');
     }
@@ -74,7 +61,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
 
   const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
 
-  // Validation functions
   const validateField = (field: string, value: string): string => {
     switch (field) {
       case 'title':
@@ -178,7 +164,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
 
       toast.success('Task assigned successfully!');
       
-      // Reset form
       setTitle('');
       setDescription('');
       setAssignedTo('');
@@ -209,7 +194,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
     return touched[field] || Object.keys(errors).length > 0;
   };
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setAssignedTo('');
@@ -316,7 +300,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
               value={assignedTo}
               onChange={(e) => {
                 const value = e.target.value;
-                console.log('🔄 Select changed to:', value);
                 setAssignedTo(value);
                 if (touched.assignedTo) {
                   const error = validateField('assignedTo', value);

@@ -418,25 +418,17 @@ const viewReport = (report: DailyReport) => {
                   </h4>
                   <div className="space-y-2">
                     {selectedReport.fileAttachments.map((file, i) => {
-                      // Safety check - if file doesn't have url, skip rendering
                       if (!file || !file.url) {
                         return null;
                       }
 
-                      // Determine file type based on URL or name
                       const fileUrl = file.url || '';
                       const fileName = file.name || 'Unknown file';
-                      const fileExtension = fileUrl.split('.').pop()?.toLowerCase() || '';
 
-                      // Check if it's an image
                       const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(fileUrl);
-                      // Check if it's a PDF
                       const isPdf = /\.pdf$/i.test(fileUrl);
-                      // Check if it's a Word document
                       const isWord = /\.(doc|docx)$/i.test(fileUrl);
-                      // Check if it's an Excel file
                       const isExcel = /\.(xls|xlsx)$/i.test(fileUrl);
-                      // Check if it's a text file
                       const isText = /\.(txt|csv|log)$/i.test(fileUrl);
 
                       return (
