@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
 
@@ -127,81 +128,84 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-block p-3 rounded-full mb-4" style={{ backgroundColor: '#0088D0' }}>
-            <div className="w-12 h-12 flex justify-center items-center" style={{ color: '#0088D0' }}>
-              <span className="text-white font-bold text-xl">WR</span>
-            </div>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#981E52] mb-4">
+            <span className="text-white font-bold text-2xl">WR</span>
           </div>
-          <h1 className="text-3xl font-bold" style={{ color: '#981E52' }}>Work Report Hub</h1>
-          <p className="text-gray-600 mt-2">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
+          <p className="text-gray-500 mt-1">Sign in to your account</p>
         </div>
 
         {success && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-md flex items-center gap-2">
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg flex items-center gap-2">
+            <CheckCircle size={16} className="flex-shrink-0" />
             {success}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
+        <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Email Address <span className="text-red-500">*</span>
             </label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (touched.email) {
-                  const error = validateField('email', e.target.value);
-                  setErrors({ ...errors, email: error });
-                }
-              }}
-              onBlur={() => handleBlur('email')}
-              placeholder="employee@company.com"
-              className={errors.email && shouldShowError('email') ? 'border-red-500' : ''}
-              required
-              disabled={loading}
-            />
+            <div className="relative">
+              <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  if (touched.email) {
+                    const error = validateField('email', e.target.value);
+                    setErrors({ ...errors, email: error });
+                  }
+                }}
+                onBlur={() => handleBlur('email')}
+                placeholder="employee@company.com"
+                className={`pl-10 ${errors.email && shouldShowError('email') ? 'border-red-500' : ''}`}
+                required
+                disabled={loading}
+              />
+            </div>
             {errors.email && shouldShowError('email') && (
               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <AlertCircle size={14} />
                 {errors.email}
               </p>
             )}
           </div>
 
-          {/* Password Field */}
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-medium mb-2">
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Password <span className="text-red-500">*</span>
             </label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-                if (touched.password) {
-                  const error = validateField('password', e.target.value);
-                  setErrors({ ...errors, password: error });
-                }
-              }}
-              onBlur={() => handleBlur('password')}
-              placeholder="••••••••"
-              className={errors.password && shouldShowError('password') ? 'border-red-500' : ''}
-              required
-              disabled={loading}
-            />
+            <div className="relative">
+              <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (touched.password) {
+                    const error = validateField('password', e.target.value);
+                    setErrors({ ...errors, password: error });
+                  }
+                }}
+                onBlur={() => handleBlur('password')}
+                placeholder="••••••••"
+                className={`pl-10 ${errors.password && shouldShowError('password') ? 'border-red-500' : ''}`}
+                required
+                disabled={loading}
+              />
+            </div>
             {errors.password && shouldShowError('password') && (
               <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
+                <AlertCircle size={14} />
                 {errors.password}
               </p>
             )}
@@ -209,7 +213,8 @@ export default function LoginPage() {
 
           {/* General Error */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md flex items-center gap-2">
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-center gap-2">
+              <AlertCircle size={16} className="flex-shrink-0" />
               {error}
             </div>
           )}
@@ -217,14 +222,13 @@ export default function LoginPage() {
           <Button
             type="submit"
             disabled={loading}
-            className="w-full"
-            style={{ backgroundColor: '#0088D0' }}
+            className="w-full flex items-center justify-center gap-2"
           >
             {loading ? (
-              <span className="flex items-center justify-center gap-2">
-
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
                 Signing in...
-              </span>
+              </>
             ) : (
               'Sign In'
             )}
@@ -234,7 +238,7 @@ export default function LoginPage() {
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
             Don't have an account?{' '}
-            <Link href="/signup" className="font-medium hover:underline" style={{ color: '#0088D0' }}>
+            <Link href="/signup" className="font-medium text-[#0088D0] hover:underline">
               Sign up here
             </Link>
           </p>

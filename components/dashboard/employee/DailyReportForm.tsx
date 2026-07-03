@@ -472,9 +472,11 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
           </button>
         </div>
 
-        <Button 
+       <div className='flex justify-end'>
+         <Button 
           type="submit" 
-          className="w-full"
+          className="w-fit px-10"
+          variant='secondary'
           disabled={isSubmitting || isLoadingCategories}
         >
           {isSubmitting ? (
@@ -489,6 +491,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
             'Submit Report'
           )}
         </Button>
+       </div>
       </form>
     </Card>
   );

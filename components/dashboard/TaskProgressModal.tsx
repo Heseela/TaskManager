@@ -1,4 +1,3 @@
-// components/dashboard/TaskProgressModal.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
