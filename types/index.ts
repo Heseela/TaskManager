@@ -20,9 +20,16 @@ export interface Report {
   tomorrowPlan: string[];
   status: 'pending' | 'submitted' | 'reviewed';
   submittedAt: string;
-  subUnit?: string; 
-  department?: string; // for supervisor view
-  userSubUnit?: string; // for supervisor view
+  subUnit?: string;
+  department?: string;
+  userSubUnit?: string;
+  fileAttachments?: FileAttachment[]
+}
+export interface FileAttachment {
+    id: number;
+    reportId: number;
+    name: string;
+    url: string;
 }
 
 export interface Task {
@@ -64,11 +71,11 @@ export interface SubUnit {
   SubUnit: SubUnitType;
 }
 
-export type SubUnitType = 
-  | 'Developer' 
-  | 'Network' 
-  | 'Support' 
-  | 'Infra' 
+export type SubUnitType =
+  | 'Developer'
+  | 'Network'
+  | 'Support'
+  | 'Infra'
   | 'CBS'
   | 'CTO';
 
@@ -86,28 +93,28 @@ export interface SubUnitWithCategories {
   Categories: TaskCategory[];
 }
 
-export type TaskCategory = 
-  | 'PRTG Scan' 
-  | 'Network Policy' 
-  | 'Internet Allow' 
+export type TaskCategory =
+  | 'PRTG Scan'
+  | 'Network Policy'
+  | 'Internet Allow'
   | 'Server Network Configuration'
-  | 'Application Development' 
-  | 'Database' 
-  | 'Query' 
-  | 'App/Db Server Monitor' 
+  | 'Application Development'
+  | 'Database'
+  | 'Query'
+  | 'App/Db Server Monitor'
   | 'Email Job for Report'
-  | 'Printer Setup' 
-  | 'User Access' 
-  | 'PC Setup' 
-  | 'Email Setup' 
-  | 'Camera Monitoring' 
+  | 'Printer Setup'
+  | 'User Access'
+  | 'PC Setup'
+  | 'Email Setup'
+  | 'Camera Monitoring'
   | 'Domain Setup'
-  | 'Server Setup' 
-  | 'VMware Monitoring' 
-  | 'Server Hardening' 
+  | 'Server Setup'
+  | 'VMware Monitoring'
+  | 'Server Hardening'
   | 'DCIM Monitoring'
-  | 'Pumori' 
-  | 'CBS Configuration' 
+  | 'Pumori'
+  | 'CBS Configuration'
   | 'CBS Monitoring'
   | 'Tech Support'
   | 'Hardware Setup'
@@ -129,7 +136,7 @@ export const TASK_CATEGORIES_BY_SUB_UNIT: Record<SubUnitType, TaskCategory[]> = 
   'CTO': []
 };
 
-export interface DailyReport extends Report {}
+export interface DailyReport extends Report { }
 export interface AuthResponse {
   user: SafeUser | null;
   error?: string;

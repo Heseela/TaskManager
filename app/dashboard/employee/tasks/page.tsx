@@ -157,7 +157,7 @@ export default function EmployeeTasksPage() {
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] text-sm"
+            className="px-3 py-2 w-1/6 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] text-sm"
           >
             <option value="all">All Tasks</option>
             <option value="pending">Pending</option>

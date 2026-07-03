@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { DailyReport } from '@/types';
 import { format } from 'date-fns';
-import { FileText, Eye, Calendar, Clock, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FileText, Eye, Calendar, Clock, CheckCircle, ChevronLeft, Image, File, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function EmployeeReportsPage() {
@@ -15,7 +15,7 @@ export default function EmployeeReportsPage() {
   const [filterDate, setFilterDate] = useState('');
   const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
@@ -44,13 +44,14 @@ export default function EmployeeReportsPage() {
     } else {
       setFilteredReports(reports);
     }
-    setCurrentPage(1); 
+    setCurrentPage(1);
   }, [filterDate, reports]);
 
-  const viewReport = (report: DailyReport) => {
+const viewReport = (report: DailyReport) => {
+    console.log('Report file attachments:', report.fileAttachments);
     setSelectedReport(report);
     setIsModalOpen(true);
-  };
+};
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -94,7 +95,7 @@ export default function EmployeeReportsPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 ">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <Calendar size={18} className="text-gray-400" /> Date: 
+            <Calendar size={18} className="text-gray-400" /> Date:
             <input
               type="date"
               value={filterDate}
@@ -152,6 +153,9 @@ export default function EmployeeReportsPage() {
                       Hours
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Attachments
+                    </th>
+                    <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Submitted Date
                     </th>
                     <th className="px-4 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
@@ -169,8 +173,8 @@ export default function EmployeeReportsPage() {
                         <div className="flex items-center gap-2">
                           <CheckCircle size={16} className="text-[#0088D0] flex-shrink-0" />
                           <span className="font-medium text-gray-800">
-                            {report.tasks && report.tasks.length > 0 
-                              ? report.tasks[0] 
+                            {report.tasks && report.tasks.length > 0
+                              ? report.tasks[0]
                               : 'No tasks'}
                           </span>
                         </div>
@@ -190,6 +194,18 @@ export default function EmployeeReportsPage() {
                           <Clock size={14} />
                           {report.hoursWorked}h
                         </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {report.fileAttachments && report.fileAttachments.length > 0 ? (
+                          <div className="flex items-center justify-center gap-1">
+                            <File size={14} className="text-purple-500" />
+                            <span className="text-xs text-gray-500">
+                              {report.fileAttachments.length}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-center whitespace-nowrap">
                         <div className="flex items-center justify-center gap-1.5">
@@ -229,11 +245,10 @@ export default function EmployeeReportsPage() {
                 <button
                   onClick={goToPreviousPage}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                    currentPage === 1
-                      ? 'text-gray-300 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === 1
+                    ? 'text-gray-300 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                    }`}
                 >
                   <ChevronLeft size={16} />
                   Previous
@@ -243,11 +258,10 @@ export default function EmployeeReportsPage() {
                     <button
                       key={page}
                       onClick={() => paginate(page)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === page
-                          ? 'bg-[#0088D0] text-white'
-                          : 'text-gray-600 hover:bg-gray-100'
-                      }`}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                        ? 'bg-[#0088D0] text-white'
+                        : 'text-gray-600 hover:bg-gray-100'
+                        }`}
                     >
                       {page}
                     </button>
@@ -256,11 +270,10 @@ export default function EmployeeReportsPage() {
                 <button
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                    currentPage === totalPages
-                      ? 'text-gray-300 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === totalPages
+                    ? 'text-gray-300 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                    }`}
                 >
                   Next
                   <ChevronRight size={16} />
@@ -312,16 +325,14 @@ export default function EmployeeReportsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 font-medium">Status</p>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mt-1 ${
-                    selectedReport.status === 'submitted' || selectedReport.status === 'pending'
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-red-100 text-red-700'
-                  }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${
-                      selectedReport.status === 'submitted' || selectedReport.status === 'pending'
-                        ? 'bg-green-500'
-                        : 'bg-red-500'
-                    }`}></span>
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mt-1 ${selectedReport.status === 'submitted' || selectedReport.status === 'pending'
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
+                    }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${selectedReport.status === 'submitted' || selectedReport.status === 'pending'
+                      ? 'bg-green-500'
+                      : 'bg-red-500'
+                      }`}></span>
                     {selectedReport.status.charAt(0).toUpperCase() + selectedReport.status.slice(1)}
                   </span>
                 </div>
@@ -398,6 +409,71 @@ export default function EmployeeReportsPage() {
                   </div>
                 </div>
               )}
+              {/* File Attachments Section */}
+              {selectedReport.fileAttachments && selectedReport.fileAttachments.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <span className="w-1 h-5 bg-purple-500 rounded-full"></span>
+                    File Attachments ({selectedReport.fileAttachments.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedReport.fileAttachments.map((file, i) => {
+                      // Safety check - if file doesn't have url, skip rendering
+                      if (!file || !file.url) {
+                        return null;
+                      }
+
+                      // Determine file type based on URL or name
+                      const fileUrl = file.url || '';
+                      const fileName = file.name || 'Unknown file';
+                      const fileExtension = fileUrl.split('.').pop()?.toLowerCase() || '';
+
+                      // Check if it's an image
+                      const isImage = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i.test(fileUrl);
+                      // Check if it's a PDF
+                      const isPdf = /\.pdf$/i.test(fileUrl);
+                      // Check if it's a Word document
+                      const isWord = /\.(doc|docx)$/i.test(fileUrl);
+                      // Check if it's an Excel file
+                      const isExcel = /\.(xls|xlsx)$/i.test(fileUrl);
+                      // Check if it's a text file
+                      const isText = /\.(txt|csv|log)$/i.test(fileUrl);
+
+                      return (
+                        <a
+                          key={i}
+                          href={fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-purple-50/50 rounded-lg border border-purple-100 hover:bg-purple-100 transition-colors group"
+                        >
+                          {isImage ? (
+                            <Image size={20} className="text-purple-500" />
+                          ) : isPdf ? (
+                            <FileText size={20} className="text-red-500" />
+                          ) : isWord ? (
+                            <FileText size={20} className="text-blue-600" />
+                          ) : isExcel ? (
+                            <FileText size={20} className="text-green-600" />
+                          ) : isText ? (
+                            <FileText size={20} className="text-gray-500" />
+                          ) : (
+                            <File size={20} className="text-gray-500" />
+                          )}
+                          <span className="text-gray-700 group-hover:text-[#0088D0] transition-colors truncate flex-1">
+                            {fileName}
+                          </span>
+                          <span className="ml-auto text-xs text-gray-400 whitespace-nowrap">
+                            View →
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+
             </div>
 
             <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-200 px-6 py-4">

@@ -80,11 +80,12 @@ export default function TeamReportsPage() {
     setFilteredReports(filtered);
     setCurrentPage(1);
   }, [filters, reports]);
-
-  const viewReport = (report: DailyReport) => {
+  
+const viewReport = (report: DailyReport) => {
+    console.log('Report file attachments:', report.fileAttachments);
     setSelectedReport(report);
     setIsModalOpen(true);
-  };
+};
 
   const closeModal = () => {
     setIsModalOpen(false);
