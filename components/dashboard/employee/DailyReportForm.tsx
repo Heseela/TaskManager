@@ -148,17 +148,13 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
     return true;
   };
 
-  // Check if a step is accessible (all previous steps are valid)
   const isStepAccessible = (stepIndex: number): boolean => {
-    // Step 0 (Tasks) is always accessible
     if (stepIndex === 0) return true;
     
-    // For step 1 (Details), check if step 0 (Tasks) is valid
     if (stepIndex === 1) {
       return isStepValid('tasks');
     }
     
-    // For step 2 (Plan), check if step 0 and step 1 are valid
     if (stepIndex === 2) {
       return isStepValid('tasks') && isStepValid('details');
     }
@@ -262,9 +258,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
   };
 
   const handleStepClick = (index: number) => {
-    // Check if the step is accessible
     if (!isStepAccessible(index)) {
-      // Find which step is blocking
       if (index === 1 && !isStepValid('tasks')) {
         toast.error('Please complete the Tasks step first', {
           icon: '⚠️',
@@ -529,7 +523,6 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
     return !isStepValid(stepId) || isSubmitting;
   };
 
-  // Import Lock icon
   const Lock = ({ size = 16 }) => (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 

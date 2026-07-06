@@ -246,10 +246,13 @@ export default function TeamReportsPage() {
             >
               <option value="">All Employees</option>
               {employees.map((emp) => (
-                <option key={emp.id} value={emp.id}>
-                  {emp.name}
-                </option>
-              ))}
+              <option key={emp.id} value={String(emp.id)}>
+                {emp.name
+                  .split(' ')
+                  .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ')}
+              </option>
+            ))}
             </select>
           </div>
           <div>
@@ -437,8 +440,8 @@ export default function TeamReportsPage() {
                   onClick={goToPreviousPage}
                   disabled={currentPage === 1}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === 1
-                      ? 'text-gray-300 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                    ? 'text-gray-300 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
                     }`}
                 >
                   <ChevronLeft size={16} />
@@ -450,8 +453,8 @@ export default function TeamReportsPage() {
                       key={page}
                       onClick={() => paginate(page)}
                       className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                          ? 'bg-[#0088D0] text-white'
-                          : 'text-gray-600 hover:bg-gray-100'
+                        ? 'bg-[#0088D0] text-white'
+                        : 'text-gray-600 hover:bg-gray-100'
                         }`}
                     >
                       {page}
@@ -462,8 +465,8 @@ export default function TeamReportsPage() {
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages}
                   className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === totalPages
-                      ? 'text-gray-300 cursor-not-allowed'
-                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                    ? 'text-gray-300 cursor-not-allowed'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
                     }`}
                 >
                   Next
