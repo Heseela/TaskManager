@@ -15,6 +15,7 @@ export interface Report {
   date: string;
   tasks: string[];
   taskDescription: string;
+  previousTaskDescription: string;
   hoursWorked: number;
   challenges: string;
   tomorrowPlan: string[];

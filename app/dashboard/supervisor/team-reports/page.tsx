@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { DailyReport } from '@/types';
 import { format } from 'date-fns';
-import { Filter, Eye, Calendar, Clock, User, CheckCircle, FileText, Users, Building, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Filter, Eye, Calendar, Clock, User, CheckCircle, FileText, Users, Building, ChevronLeft, ChevronRight, Paperclip, Download, File, Image, FileArchive, FileSpreadsheet, FileCode, X, EyeIcon } from 'lucide-react';
 
 export default function TeamReportsPage() {
   const { data: session } = useSession();
@@ -20,7 +20,7 @@ export default function TeamReportsPage() {
   });
   const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
 
@@ -81,10 +81,10 @@ export default function TeamReportsPage() {
     setCurrentPage(1);
   }, [filters, reports]);
 
-const viewReport = (report: DailyReport) => {
+  const viewReport = (report: DailyReport) => {
     setSelectedReport(report);
     setIsModalOpen(true);
-};
+  };
 
   const closeModal = () => {
     setIsModalOpen(false);
@@ -93,6 +93,72 @@ const viewReport = (report: DailyReport) => {
 
   const uniqueDepartments = [...new Set(reports.map(r => r.department).filter(Boolean))];
   const uniqueSubUnits = [...new Set(reports.map(r => r.subUnit).filter(Boolean))];
+
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    const iconMap: { [key: string]: any } = {
+      'pdf': FileText,
+      'doc': FileText,
+      'docx': FileText,
+      'xls': FileSpreadsheet,
+      'xlsx': FileSpreadsheet,
+      'csv': FileSpreadsheet,
+      'jpg': Image,
+      'jpeg': Image,
+      'png': Image,
+      'gif': Image,
+      'svg': Image,
+      'webp': Image,
+      'zip': FileArchive,
+      'rar': FileArchive,
+      '7z': FileArchive,
+      'tar': FileArchive,
+      'gz': FileArchive,
+      'js': FileCode,
+      'ts': FileCode,
+      'jsx': FileCode,
+      'tsx': FileCode,
+      'html': FileCode,
+      'css': FileCode,
+      'json': FileCode,
+      'xml': FileCode,
+    };
+    return iconMap[extension] || File;
+  };
+
+  const getFileSize = (sizeInBytes?: number) => {
+    if (!sizeInBytes) return 'Unknown size';
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(sizeInBytes) / Math.log(1024));
+    return `${(sizeInBytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+  };
+
+  const getFileColor = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase() || '';
+    const colorMap: { [key: string]: string } = {
+      'pdf': 'text-red-500',
+      'doc': 'text-blue-500',
+      'docx': 'text-blue-500',
+      'xls': 'text-green-500',
+      'xlsx': 'text-green-500',
+      'csv': 'text-green-500',
+      'jpg': 'text-purple-500',
+      'jpeg': 'text-purple-500',
+      'png': 'text-purple-500',
+      'gif': 'text-purple-500',
+      'svg': 'text-purple-500',
+      'zip': 'text-yellow-500',
+      'rar': 'text-yellow-500',
+      '7z': 'text-yellow-500',
+      'js': 'text-yellow-600',
+      'ts': 'text-blue-600',
+      'html': 'text-orange-500',
+      'css': 'text-purple-600',
+      'json': 'text-green-600',
+      'xml': 'text-red-400',
+    };
+    return colorMap[extension] || 'text-gray-500';
+  };
 
   const getStatusBadge = (status: string) => {
     const styles = {
@@ -279,6 +345,9 @@ const viewReport = (report: DailyReport) => {
                     <th className="text-left py-6 px-6 text-sm font-medium text-gray-500">
                       Date
                     </th>
+                    <th className="text-left py-6 px-6 text-sm font-medium text-gray-500">
+                      Attachments
+                    </th>
                     <th className="text-center py-6 px-6 text-sm font-medium text-gray-500">
                       Action
                     </th>
@@ -325,6 +394,18 @@ const viewReport = (report: DailyReport) => {
                           </span>
                         </div>
                       </td>
+                      <td className="py-3 px-6 text-gray-600">
+                        {report.fileAttachments && report.fileAttachments.length > 0 ? (
+                          <div className="flex items-center gap-1">
+                            <Paperclip size={14} className="text-gray-400" />
+                            <span className="text-xs font-medium text-gray-600">
+                              {report.fileAttachments.length}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
+                      </td>
                       <td className="px-6 py-3 text-center whitespace-nowrap">
                         <button
                           onClick={() => viewReport(report)}
@@ -355,11 +436,10 @@ const viewReport = (report: DailyReport) => {
                 <button
                   onClick={goToPreviousPage}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                    currentPage === 1
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === 1
                       ? 'text-gray-300 cursor-not-allowed'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
+                    }`}
                 >
                   <ChevronLeft size={16} />
                   Previous
@@ -369,11 +449,10 @@ const viewReport = (report: DailyReport) => {
                     <button
                       key={page}
                       onClick={() => paginate(page)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === page
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                           ? 'bg-[#0088D0] text-white'
                           : 'text-gray-600 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>
@@ -382,11 +461,10 @@ const viewReport = (report: DailyReport) => {
                 <button
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                    currentPage === totalPages
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === totalPages
                       ? 'text-gray-300 cursor-not-allowed'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
+                    }`}
                 >
                   Next
                   <ChevronRight size={16} />
@@ -413,9 +491,7 @@ const viewReport = (report: DailyReport) => {
                 onClick={closeModal}
                 className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full p-1 transition-all duration-200"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                <X size={24} />
               </button>
             </div>
 
@@ -485,15 +561,28 @@ const viewReport = (report: DailyReport) => {
               </div>
 
               {/* Task Description */}
-              {selectedReport.taskDescription && (
+              <div>
+                <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                  <span className="w-1 h-5 bg-purple-500 rounded-full"></span>
+                  Task Description
+                </h4>
+                <div className="bg-purple-50/70 p-4 rounded-lg border border-purple-100">
+                  <p className="text-gray-700 leading-relaxed">
+                    {selectedReport.taskDescription || 'No description provided'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Previous Task Description */}
+              {selectedReport.previousTaskDescription && (
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                    <span className="w-1 h-5 bg-[#0088D0] rounded-full"></span>
-                    Task Description
+                    <span className="w-1 h-5 bg-teal-500 rounded-full"></span>
+                    Previous Task Description
                   </h4>
-                  <div className="bg-blue-50/70 p-4 rounded-lg border border-blue-100">
+                  <div className="bg-teal-50/70 p-4 rounded-lg border border-teal-100">
                     <p className="text-gray-700 leading-relaxed">
-                      {selectedReport.taskDescription}
+                      {selectedReport.previousTaskDescription}
                     </p>
                   </div>
                 </div>
@@ -528,6 +617,52 @@ const viewReport = (report: DailyReport) => {
                         <span className="text-gray-700">{plan}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* File Attachments */}
+              {selectedReport.fileAttachments && selectedReport.fileAttachments.length > 0 && (
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <span className="w-1 h-5 bg-indigo-500 rounded-full"></span>
+                    File Attachments ({selectedReport.fileAttachments.length})
+                  </h4>
+                  <div className="grid grid-cols-1 gap-3">
+                    {selectedReport.fileAttachments.map((file, index) => {
+                      const FileIcon = getFileIcon(file.name);
+                      const fileColor = getFileColor(file.name);
+
+                      return (
+                        <a
+                          key={index}
+                          href={file.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 hover:border-[#0088D0] hover:shadow-md transition-all duration-200 group cursor-pointer"
+                        >
+                          <div className={`p-2 bg-white rounded-lg shadow-sm ${fileColor}`}>
+                            <FileIcon size={20} />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <p
+                              className="text-sm font-medium text-gray-700 truncate group-hover:text-[#0088D0]"
+                              title={file.name}
+                            >
+                              {file.name}
+                            </p>
+                          </div>
+
+                          <div
+                            className="p-1.5 text-gray-400 group-hover:text-[#0088D0] group-hover:bg-blue-50 rounded-lg transition-all duration-200"
+                            title="View file"
+                          >
+                            <EyeIcon size={16} />
+                          </div>
+                        </a>
+                      );
+                    })}
                   </div>
                 </div>
               )}

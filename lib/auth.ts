@@ -59,11 +59,16 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
+  
   pages: {
     signIn: '/login',
   },
+
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 60,  //session expires after 30 mins
+    updateAge: 5 * 60,  //refresh the session expiry every 5 minutes if the user is active
   },
+
   secret: process.env.NEXTAUTH_SECRET || 'demo-secret-key-for-development',
 };

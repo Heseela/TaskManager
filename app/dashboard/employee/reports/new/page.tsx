@@ -1,8 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
 import toast from 'react-hot-toast';
 import DailyReportForm from '@/components/dashboard/employee/DailyReportForm';
 
@@ -30,20 +28,7 @@ export default function NewReportPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link
-          href="/dashboard/employee/reports"
-          className="text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <ArrowLeft size={24} />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Submit New Report</h1>
-          <p className="text-gray-500 mt-1">Record your daily work activities</p>
-        </div>
-      </div>
-
+    <div className="">
       <DailyReportForm onSubmit={handleSubmit} />
     </div>
   );

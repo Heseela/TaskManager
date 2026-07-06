@@ -24,7 +24,7 @@ export default function EmployeeDashboard() {
     totalReports: 0,
     pendingTasks: 0,
     completedTasks: 0,
-    totalHours: 0,
+    avgHours: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -45,12 +45,13 @@ export default function EmployeeDashboard() {
         const completed = tasksData.filter((t: Task) => t.status === 'completed').length;
         const pending = tasksData.filter((t: Task) => t.status !== 'completed').length;
         const totalHours = reportsData.reduce((sum: number, r: DailyReport) => sum + r.hoursWorked, 0);
+        const avgHours = reportsData.length > 0 ? (totalHours / reportsData.length) : 0;
 
         setStats({
           totalReports: reportsData.length,
           pendingTasks: pending,
           completedTasks: completed,
-          totalHours: totalHours,
+          avgHours: Math.round(avgHours * 10) / 10
         });
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -82,18 +83,6 @@ export default function EmployeeDashboard() {
     </div>
   );
 
-  const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  };
-
-  const getFirstName = () => {
-    if (!session?.user?.name) return 'User';
-    return session.user.name.split(' ')[0];
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -110,11 +99,11 @@ export default function EmployeeDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          Welcome back, {session?.user?.name
-            ?.split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ')}!        
-        </h2>
+            Welcome back, {session?.user?.name
+              ?.split(' ')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+              .join(' ')}!
+          </h2>
           <p className="text-gray-500 mt-1">Here's what's happening with your work today</p>
         </div>
         <Link
@@ -126,7 +115,7 @@ export default function EmployeeDashboard() {
         </Link>
       </div>
 
-     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={FileText}
           label="Total Reports"
@@ -147,8 +136,8 @@ export default function EmployeeDashboard() {
         />
         <StatCard
           icon={TrendingUp}
-          label="Hours Worked"
-          value={`${stats.totalHours}h`}
+          label="Average Hours Worked"
+          value={`${stats.avgHours}h`}
           bgColor="bg-gradient-to-br from-purple-500 to-purple-600"
         />
       </div>

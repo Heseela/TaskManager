@@ -586,7 +586,17 @@ export default function TaskCategoriesPage() {
 
                             <div className="flex gap-3 pt-4 border-t border-gray-200">
                                 <Button
+                                    type="button"
+                                    variant="primary"
+                                    onClick={closeModal}
+                                    className="flex-1"
+                                    disabled={isSubmitting}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
                                     type="submit"
+                                    variant='secondary'
                                     className="flex-1"
                                     disabled={isSubmitting}
                                 >
@@ -596,15 +606,7 @@ export default function TaskCategoriesPage() {
                                             ? 'Update Category'
                                             : 'Add Category'}
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    onClick={closeModal}
-                                    className="flex-1"
-                                    disabled={isSubmitting}
-                                >
-                                    Cancel
-                                </Button>
+                                
                             </div>
                         </form>
                     </div>

@@ -11,6 +11,7 @@ export async function createReport(report: {
     tomorrowPlan: string[];
     subUnit: string;
     taskDescription: string;
+    previousTaskDescription: string;
     status: string;
     fileAttachments?: Array<{ name: string; url: string }>;
 }) {
@@ -26,7 +27,11 @@ export async function createReport(report: {
             .input('userName', sql.NVarChar, report.userName)
             .input('tasks', sql.NVarChar(sql.MAX), JSON.stringify(report.tasks))
             .input('taskDescription', sql.NVarChar(sql.MAX), report.taskDescription)
-            .input('hoursWorked', sql.Decimal(4, 1), report.hoursWorked)
+            .input(
+                'previousTaskDescription',
+                sql.NVarChar(sql.MAX),
+                report.previousTaskDescription
+            ).input('hoursWorked', sql.Decimal(4, 1), report.hoursWorked)
             .input('challenges', sql.NVarChar(sql.MAX), report.challenges)
             .input(
                 'tomorrowPlan',
@@ -43,6 +48,7 @@ export async function createReport(report: {
                     ReportDate,
                     Tasks,
                     TaskDescription,
+                    PreviousTaskDescription,
                     HoursWorked,
                     Challenges,
                     TomorrowPlan,
@@ -58,6 +64,7 @@ export async function createReport(report: {
                     CAST(GETDATE() AS DATE),
                     @tasks,
                     @taskDescription,
+                    @previousTaskDescription,
                     @hoursWorked,
                     @challenges,
                     @tomorrowPlan,
@@ -72,7 +79,7 @@ export async function createReport(report: {
 
         if (report.fileAttachments && report.fileAttachments.length > 0) {
             for (const file of report.fileAttachments) {
-                
+
                 const fileResult = await transaction
                     .request()
                     .input('reportId', sql.Int, reportId)
@@ -85,7 +92,7 @@ export async function createReport(report: {
                         VALUES
                         (@reportId, @name, @url)
                     `);
-                }
+            }
         }
 
         await transaction.commit();
@@ -97,6 +104,8 @@ export async function createReport(report: {
             date: newReport.ReportDate,
             tasks: JSON.parse(newReport.Tasks || '[]'),
             taskDescription: newReport.TaskDescription || '',
+            previousTaskDescription:
+                newReport.PreviousTaskDescription || '',
             hoursWorked: Number(newReport.HoursWorked),
             challenges: newReport.Challenges || '',
             tomorrowPlan: JSON.parse(newReport.TomorrowPlan || '[]'),
@@ -125,6 +134,7 @@ export async function getReportsByUser(userId: number): Promise<Report[]> {
         r.ReportDate,
         r.Tasks,
         r.TaskDescription,
+        r.PreviousTaskDescription,
         r.HoursWorked,
         r.Challenges,
         r.TomorrowPlan,
@@ -168,6 +178,8 @@ export async function getReportsByUser(userId: number): Promise<Report[]> {
             date: r.ReportDate,
             tasks: JSON.parse(r.Tasks || '[]'),
             taskDescription: r.TaskDescription || '',
+            previousTaskDescription:
+                r.PreviousTaskDescription || '',
             hoursWorked: Number(r.HoursWorked),
             challenges: r.Challenges || '',
             tomorrowPlan: JSON.parse(r.TomorrowPlan || '[]'),
@@ -194,6 +206,7 @@ export async function getAllReports(): Promise<Report[]> {
                 r.ReportDate,
                 r.Tasks,
                 r.TaskDescription,
+                r.PreviousTaskDescription,
                 r.HoursWorked,
                 r.Challenges,
                 r.TomorrowPlan,
@@ -236,6 +249,8 @@ export async function getAllReports(): Promise<Report[]> {
             date: r.ReportDate,
             tasks: JSON.parse(r.Tasks || '[]'),
             taskDescription: r.TaskDescription || '',
+            previousTaskDescription:
+                r.PreviousTaskDescription || '',
             hoursWorked: Number(r.HoursWorked),
             challenges: r.Challenges || '',
             tomorrowPlan: JSON.parse(r.TomorrowPlan || '[]'),

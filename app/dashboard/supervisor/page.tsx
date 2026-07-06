@@ -108,13 +108,6 @@ export default function SupervisorDashboard() {
             Manage your team's reports and tasks
           </p>
         </div>
-          <Link
-            href="/dashboard/supervisor/tasks/assign"
-            className="px-4 py-2 bg-[#981E52] text-white rounded-lg hover:bg-[#881346] transition-colors flex items-center gap-2"
-          >
-            <Plus size={18} />
-            Assign Task
-          </Link>
       </div>
 
       {/* Stats */}
