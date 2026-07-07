@@ -28,7 +28,7 @@ export default function NewReportPage() {
   };
 
   return (
-    <div className="">
+    <div>
       <DailyReportForm onSubmit={handleSubmit} />
     </div>
   );
