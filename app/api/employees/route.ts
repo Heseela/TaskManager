@@ -56,7 +56,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists
     const existing = await db.getUser(email);
     if (existing) {
       return NextResponse.json(
@@ -65,7 +64,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create new employee
     await db.createUser({
       email,
       name,

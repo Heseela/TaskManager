@@ -1,4 +1,3 @@
-// In app/api/reports/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -22,19 +21,16 @@ export async function GET(request: NextRequest) {
 
     let reports: Report[] = [];
 
-    // Supervisors can see all reports
     if (session.user.role === 'supervisor') {
       reports = await getAllReports();
-      
-      // Filter by user if specified
+
       if (userId) {
         reports = reports.filter(r => r.userId === Number(userId));
       }
-    } 
-    // Employees can only see their own reports
+    }
     else if (session.user.role === 'employee') {
       reports = await getReportsByUser(Number(session.user.id));
-    } 
+    }
     else {
       return NextResponse.json(
         { error: 'Unauthorized' },
@@ -42,7 +38,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Filter by date if provided
     if (date) {
       reports = reports.filter(r => r.date === date);
     }
@@ -70,7 +65,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate required fields
     if (!body.tasks || body.tasks.length === 0) {
       return NextResponse.json(
         { error: 'At least one task is required' },
@@ -94,7 +88,9 @@ export async function POST(request: NextRequest) {
       tomorrowPlan: body.tomorrowPlan || [],
       subUnit: body.subUnit || session.user.subUnit || '',
       taskDescription: body.taskDescription || '',
+      previousTaskDescription:body.previousTaskDescription || '',
       status: 'submitted',
+      fileAttachments: body.fileAttachments || [],
     });
 
     return NextResponse.json(report, { status: 201 });

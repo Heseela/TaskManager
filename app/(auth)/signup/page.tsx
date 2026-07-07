@@ -235,7 +235,7 @@ export default function SignupPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold" style={{ color: '#981E52' }}>
-            Work Report Hub
+           SRDB Work Report
           </h1>
           <p className="text-gray-600 mt-2">Create a new account</p>
         </div>

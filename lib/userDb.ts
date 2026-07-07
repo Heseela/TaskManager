@@ -53,7 +53,7 @@ export async function getDepartment() {
 
 }
 
-export async function getSubUnits(depId: number) {
+export async function getSubUnits(depId: string) {
   const pool = await getDb();
 
   const result = await pool

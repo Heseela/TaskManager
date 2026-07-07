@@ -25,14 +25,13 @@ export async function GET(request: Request) {
         u.SubUnit AS SubUnitName,
         c.CategoryName,
         c.CreatedAt
-      FROM TaskCategory c
+      FROM CategoryTable c
       INNER JOIN UnitTable u ON c.SubUnitID = u.ID
     `;
     
     const request_obj = pool.request();
 
     if (all === 'true') {
-      // Return all categories
       query += ` ORDER BY u.SubUnit, c.CategoryName`;
     } else if (subUnitName) {
       query += ` WHERE u.SubUnit = @subUnitName`;
@@ -85,13 +84,12 @@ export async function POST(request: Request) {
 
     const pool = await getDb();
 
-    // Check if category already exists
     const checkResult = await pool.request()
       .input('subUnitId', sql.Int, subUnitId)
       .input('categoryName', sql.VarChar, categoryName)
       .query(`
         SELECT COUNT(*) AS Count
-        FROM TaskCategory
+        FROM CategoryTable
         WHERE SubUnitID = @subUnitId AND CategoryName = @categoryName
       `);
 
@@ -102,12 +100,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Insert the new category
     const result = await pool.request()
       .input('subUnitId', sql.Int, subUnitId)
       .input('categoryName', sql.VarChar, categoryName)
       .query(`
-        INSERT INTO TaskCategory (SubUnitID, CategoryName, CreatedAt)
+        INSERT INTO CategoryTable (SubUnitID, CategoryName, CreatedAt)
         VALUES (@subUnitId, @categoryName, GETDATE());
         
         SELECT SCOPE_IDENTITY() AS ID;
@@ -159,12 +156,11 @@ export async function PUT(request: Request) {
 
     const pool = await getDb();
 
-    // Check if category exists
     const checkResult = await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
         SELECT SubUnitID
-        FROM TaskCategory
+        FROM CategoryTable
         WHERE ID = @categoryId
       `);
 
@@ -175,12 +171,11 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Update the category
     await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .input('categoryName', sql.VarChar, categoryName)
       .query(`
-        UPDATE TaskCategory
+        UPDATE CategoryTable
         SET CategoryName = @categoryName
         WHERE ID = @categoryId
       `);
@@ -220,12 +215,11 @@ export async function DELETE(request: Request) {
 
     const pool = await getDb();
 
-    // Check if category exists
     const checkResult = await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
         SELECT ID
-        FROM TaskCategory
+        FROM CategoryTable
         WHERE ID = @categoryId
       `);
 
@@ -236,11 +230,10 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // Delete the category
     await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
-        DELETE FROM TaskCategory
+        DELETE FROM CategoryTable
         WHERE ID = @categoryId
       `);
 

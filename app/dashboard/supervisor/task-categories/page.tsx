@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import Link from 'next/link';
-import { ArrowLeft, Plus, Edit, X } from 'lucide-react';
+import { Plus, Edit, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { formatDateTime } from '@/global/dateUtils';
+import SearchInput from '@/components/ui/SearchInput';
+import { Department } from '@/types';
 
 interface Category {
     ID: number;
@@ -18,15 +19,9 @@ interface Category {
     CreatedAt: string;
 }
 
-interface Department {
-    ID: number;
-    DepName: string;
-    DepCode: string;
-}
-
 interface SubUnit {
     ID: number;
-    DepID: number;
+    DepID: string;
     SubUnit: string;
     DepName?: string;
     DepCode?: string;
@@ -39,7 +34,6 @@ export default function TaskCategoriesPage() {
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [subUnits, setSubUnits] = useState<SubUnit[]>([]);
-    const [filteredSubUnits, setFilteredSubUnits] = useState<SubUnit[]>([]);
     const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | ''>('');
     const [selectedSubUnitId, setSelectedSubUnitId] = useState<number | ''>('');
     const [categoryName, setCategoryName] = useState('');
@@ -48,6 +42,13 @@ export default function TaskCategoriesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage] = useState(10);
+
+    const filteredSubUnits = subUnits.filter(
+        su => Number(su.DepID) === Number(selectedDepartmentId)
+    );
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -62,17 +63,6 @@ export default function TaskCategoriesPage() {
             fetchAllData();
         }
     }, [session]);
-
-    useEffect(() => {
-        if (selectedDepartmentId) {
-            const filtered = subUnits.filter(su => Number(su.DepID) === selectedDepartmentId);
-            setFilteredSubUnits(filtered);
-            setSelectedSubUnitId('');
-        } else {
-            setFilteredSubUnits([]);
-            setSelectedSubUnitId('');
-        }
-    }, [selectedDepartmentId, subUnits]);
 
     useEffect(() => {
         let filtered = categories;
@@ -90,6 +80,7 @@ export default function TaskCategoriesPage() {
         }
 
         setFilteredCategories(filtered);
+        setCurrentPage(1);
     }, [categories, selectedSubUnitId, searchTerm]);
 
     const fetchAllData = async () => {
@@ -157,13 +148,19 @@ export default function TaskCategoriesPage() {
     const openEditModal = (category: Category) => {
         setEditingCategory(category);
         setCategoryName(category.CategoryName);
-        const subunit = subUnits.find(su => su.ID === category.SubUnitID);
+
+        const subunit = subUnits.find(
+            su => Number(su.ID) === Number(category.SubUnitID)
+        );
+
         if (subunit) {
             setSelectedDepartmentId(Number(subunit.DepID));
-            setSelectedSubUnitId(category.SubUnitID);
-            const filtered = subUnits.filter(su => Number(su.DepID) === Number(subunit.DepID));
-            setFilteredSubUnits(filtered);
+            setSelectedSubUnitId(Number(subunit.ID));
+        } else {
+            setSelectedDepartmentId('');
+            setSelectedSubUnitId('');
         }
+
         setIsModalOpen(true);
     };
 
@@ -276,13 +273,29 @@ export default function TaskCategoriesPage() {
         setCategoryName('');
         setSelectedDepartmentId('');
         setSelectedSubUnitId('');
-        setFilteredSubUnits([]);
     };
 
-    const getDepartmentName = (depId: number) => {
+    const getDepartmentName = (depId: string | number) => {
         if (!depId) return 'Unknown';
         const dept = departments.find(d => d.ID === Number(depId));
         return dept?.DepName || 'Unknown';
+    };
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredCategories.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredCategories.length / itemsPerPage);
+
+    const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+    const goToPreviousPage = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1);
+        }
+    };
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1);
+        }
     };
 
     if (isLoading) {
@@ -300,12 +313,6 @@ export default function TaskCategoriesPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Link
-                        href="/dashboard/supervisor"
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                        <ArrowLeft className="w-6 h-6" />
-                    </Link>
                     <div>
                         <h1 className="text-2xl font-bold text-gray-800">Task Categories</h1>
                         <p className="text-sm text-gray-500">
@@ -323,31 +330,17 @@ export default function TaskCategoriesPage() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-                <div className="flex-1 min-w-[200px]">
+                <div className="flex-1 max-w-[500px]">
                     <div className="relative">
-                        <input
-                            type="text"
+                        <SearchInput
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                             style={{ paddingLeft: '20px' }}
+                            onChange={setSearchTerm}
                             placeholder="Search categories by name or subunit..."
-                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+                            onClear={() => {
+                                setSearchTerm('');
+                            }}
                         />
                     </div>
-                </div>
-                <div>
-                    <select
-                        value={selectedSubUnitId}
-                        onChange={(e) => setSelectedSubUnitId(Number(e.target.value) || '')}
-                        className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0] min-w-[150px]"
-                    >
-                        <option value="">All Sub-Units</option>
-                        {subUnits.map(su => (
-                            <option key={su.ID} value={su.ID}>
-                                {su.SubUnit}
-                            </option>
-                        ))}
-                    </select>
                 </div>
             </div>
 
@@ -371,65 +364,117 @@ export default function TaskCategoriesPage() {
                         )}
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            <thead>
-                                <tr className="border-b border-gray-200">
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                                        Category Name
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                                        Sub-Unit
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                                        Department
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                                        Created At
-                                    </th>
-                                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredCategories.map((category) => (
-                                    <tr
-                                        key={category.ID}
-                                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                                    >
-                                        <td className="py-3 px-4">
-                                            <span className="font-medium text-gray-800">
-                                                {category.CategoryName}
-                                            </span>
-                                        </td>
-                                        <td className="py-3 px-4 text-gray-600">
-                                            {category.SubUnitName}
-                                        </td>
-                                        <td className="py-3 px-4 text-gray-600">
-                                            {getDepartmentName(
-                                                Number(subUnits.find(su => su.ID === category.SubUnitID)?.DepID) || 0
-                                            )}
-                                        </td>
-                                        <td className="py-3 px-4 text-sm text-gray-500">
-                                            {formatDateTime(category.CreatedAt)}
-                                        </td>
-                                        <td className="py-3 px-4 text-right">
-                                            <div className="flex justify-end gap-2">
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead>
+                                    <tr className="border-b border-gray-200">
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                                            Category Name
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                                            Sub-Unit
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                                            Department
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                                            Created At
+                                        </th>
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
+                                            Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {currentItems.map((category) => (
+                                        <tr
+                                            key={category.ID}
+                                            className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                                        >
+                                            <td className="py-3 px-4">
+                                                <span className="font-medium text-gray-800">
+                                                    {category.CategoryName}
+                                                </span>
+                                            </td>
+                                            <td className="py-3 px-4 text-gray-600">
+                                                {category.SubUnitName}
+                                            </td>
+                                            <td className="py-3 px-4 text-gray-600">
+                                                {getDepartmentName(
+                                                    subUnits.find(su => su.ID === category.SubUnitID)?.DepID || 0
+                                                )}
+                                            </td>
+                                            <td className="py-3 px-4 text-sm text-gray-500">
+                                                {formatDateTime(category.CreatedAt)}
+                                            </td>
+                                            <td className="px-4 py-3 text-left">
                                                 <button
                                                     onClick={() => openEditModal(category)}
-                                                    className="p-1 text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[#0088D0] hover:bg-blue-50 rounded-lg transition-all hover:scale-105"
                                                     title="Edit category"
                                                 >
-                                                    <Edit className="w-4 h-4 text-blue-500" />
+                                                    <Edit size={15} />
+                                                    <span className="text-xs font-medium">Edit</span>
                                                 </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-between flex-wrap gap-4 px-4 py-3 border-t border-gray-200 mt-4">
+                                <div className="text-sm text-gray-500">
+                                    Showing <span className="font-medium text-gray-700">{indexOfFirstItem + 1}</span> to{' '}
+                                    <span className="font-medium text-gray-700">
+                                        {Math.min(indexOfLastItem, filteredCategories.length)}
+                                    </span>{' '}
+                                    of <span className="font-medium text-gray-700">{filteredCategories.length}</span> categories
+                                </div>
+                                <div className="flex items-center gap-1">
+                                    <button
+                                        onClick={goToPreviousPage}
+                                        disabled={currentPage === 1}
+                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === 1
+                                            ? 'text-gray-300 cursor-not-allowed'
+                                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                                            }`}
+                                    >
+                                        <ChevronLeft size={16} />
+                                        Previous
+                                    </button>
+                                    <div className="flex items-center gap-1 mx-2">
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                            <button
+                                                key={page}
+                                                onClick={() => paginate(page)}
+                                                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${currentPage === page
+                                                    ? 'bg-[#0088D0] text-white'
+                                                    : 'text-gray-600 hover:bg-gray-100'
+                                                    }`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <button
+                                        onClick={goToNextPage}
+                                        disabled={currentPage === totalPages}
+                                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === totalPages
+                                            ? 'text-gray-300 cursor-not-allowed'
+                                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                                            }`}
+                                    >
+                                        Next
+                                        <ChevronRight size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </>
                 )}
             </Card>
 
@@ -472,8 +517,13 @@ export default function TaskCategoriesPage() {
                                 <select
                                     value={selectedDepartmentId}
                                     onChange={(e) => {
-                                        setSelectedDepartmentId(Number(e.target.value));
-                                        setSelectedSubUnitId('');
+                                        const depId = Number(e.target.value);
+
+                                        setSelectedDepartmentId(depId);
+
+                                        if (!editingCategory) {
+                                            setSelectedSubUnitId('');
+                                        }
                                     }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
                                     required
@@ -496,11 +546,11 @@ export default function TaskCategoriesPage() {
                                     value={selectedSubUnitId}
                                     onChange={(e) => setSelectedSubUnitId(Number(e.target.value))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
-                                    required
                                     disabled={!selectedDepartmentId || !!editingCategory || isSubmitting}
                                 >
                                     <option value="">Select subunit</option>
-                                    {filteredSubUnits.map(su => (
+
+                                    {filteredSubUnits.map((su) => (
                                         <option key={su.ID} value={su.ID}>
                                             {su.SubUnit}
                                         </option>
@@ -533,7 +583,17 @@ export default function TaskCategoriesPage() {
 
                             <div className="flex gap-3 pt-4 border-t border-gray-200">
                                 <Button
+                                    type="button"
+                                    variant="primary"
+                                    onClick={closeModal}
+                                    className="flex-1"
+                                    disabled={isSubmitting}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
                                     type="submit"
+                                    variant='secondary'
                                     className="flex-1"
                                     disabled={isSubmitting}
                                 >
@@ -543,15 +603,7 @@ export default function TaskCategoriesPage() {
                                             ? 'Update Category'
                                             : 'Add Category'}
                                 </Button>
-                                <Button
-                                    type="button"
-                                    variant="secondary"
-                                    onClick={closeModal}
-                                    className="flex-1"
-                                    disabled={isSubmitting}
-                                >
-                                    Cancel
-                                </Button>
+
                             </div>
                         </form>
                     </div>

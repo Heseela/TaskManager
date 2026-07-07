@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import Button from '../../ui/Button';
 import { Plus, X, Edit, Trash2 } from 'lucide-react';
+import { Department } from '@/types';
 
 interface Category {
   ID: number;
@@ -14,15 +15,9 @@ interface Category {
   CreatedAt: string;
 }
 
-interface Department {
-  ID: number;
-  DepName: string;
-  DepCode: string;
-}
-
 interface SubUnit {
   ID: number;
-  DepID: number;
+  DepID: string;
   SubUnit: string;
   DepName?: string;
   DepCode?: string;
@@ -54,41 +49,39 @@ export default function TaskCategoriesModal({
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Fetch data when modal opens
   useEffect(() => {
     if (isOpen) {
       fetchAllData();
     }
   }, [isOpen]);
 
-  // Filter subunits when department changes
   useEffect(() => {
     if (selectedDepartmentId) {
-      const filtered = subUnits.filter(su => Number(su.DepID) === selectedDepartmentId);
+      const filtered = subUnits.filter(
+        su => Number(su.DepID) === selectedDepartmentId
+      );
+
       setFilteredSubUnits(filtered);
-      setSelectedSubUnitId('');
     } else {
       setFilteredSubUnits([]);
-      setSelectedSubUnitId('');
     }
   }, [selectedDepartmentId, subUnits]);
 
-  // Filter categories by search and subunit
   useEffect(() => {
     let filtered = categories;
-    
+
     if (selectedSubUnitId) {
       filtered = filtered.filter(c => c.SubUnitID === selectedSubUnitId);
     }
-    
+
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(c => 
+      filtered = filtered.filter(c =>
         c.CategoryName.toLowerCase().includes(term) ||
         c.SubUnitName.toLowerCase().includes(term)
       );
     }
-    
+
     setFilteredCategories(filtered);
   }, [categories, selectedSubUnitId, searchTerm]);
 
@@ -240,10 +233,50 @@ export default function TaskCategoriesModal({
   const handleEditCategory = async (category: Category) => {
     setEditingCategory(category);
     setCategoryName(category.CategoryName);
-    setSelectedDepartmentId(
-      subUnits.find(su => su.ID === category.SubUnitID)?.DepID || ''
-    );
-    setSelectedSubUnitId(category.SubUnitID);
+
+    console.log('Editing category:', category);
+    console.log('All subunits:', subUnits);
+
+    const subunit = subUnits.find(su => su.ID === category.SubUnitID);
+    console.log('Found subunit:', subunit);
+
+    if (subunit) {
+      const depId = Number(subunit.DepID);
+      console.log('Department ID:', depId);
+
+      setSelectedDepartmentId(depId);
+      setSelectedSubUnitId(category.SubUnitID);
+
+      const filtered = subUnits.filter(su => Number(su.DepID) === depId);
+      console.log('Filtered subunits:', filtered);
+
+      const hasSubUnit = filtered.some(su => su.ID === category.SubUnitID);
+      if (!hasSubUnit) {
+        setFilteredSubUnits([...filtered, subunit]);
+      } else {
+        setFilteredSubUnits(filtered);
+      }
+    } else {
+      const subunitByName = subUnits.find(su => su.SubUnit === category.SubUnitName);
+      if (subunitByName) {
+        const depId = Number(subunitByName.DepID);
+        setSelectedDepartmentId(depId);
+        setSelectedSubUnitId(subunitByName.ID);
+        const filtered = subUnits.filter(su => Number(su.DepID) === depId);
+
+        const hasSubUnit = filtered.some(su => su.ID === subunitByName.ID);
+        if (!hasSubUnit) {
+          setFilteredSubUnits([...filtered, subunitByName]);
+        } else {
+          setFilteredSubUnits(filtered);
+        }
+      } else {
+        setSelectedDepartmentId('');
+        setSelectedSubUnitId('');
+        setFilteredSubUnits([]);
+      }
+    }
+
     setShowAddForm(true);
   };
 
@@ -422,8 +455,8 @@ export default function TaskCategoriesModal({
                   {isLoading
                     ? 'Saving...'
                     : editingCategory
-                    ? 'Update Category'
-                    : 'Add Category'}
+                      ? 'Update Category'
+                      : 'Add Category'}
                 </Button>
                 <Button
                   type="button"

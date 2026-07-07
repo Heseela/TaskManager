@@ -1,17 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import Button from '../../ui/Button';
-import { TaskCategory, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types';
+import { CategoryTable, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types';
 
 interface AssignTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   employees: Array<{
-    id: string;
+    id: string | number;
     name: string;
-    subUnit?: SubUnitType;
+    subUnit?: string;
   }>;
   onSubmit: (taskData: any) => void;
 }
@@ -27,18 +27,40 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [dueDate, setDueDate] = useState('');
-  const [category, setCategory] = useState<TaskCategory | ''>('');
+  const [category, setCategory] = useState<CategoryTable | ''>('');
   const [assignedTo, setAssignedTo] = useState<string>('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [availableCategories, setAvailableCategories] = useState<CategoryTable[]>([]);
 
-  const selectedEmployee = employees.find(emp => emp.id === assignedTo);
-  const availableCategories = selectedEmployee?.subUnit
-    ? TASK_CATEGORIES_BY_SUB_UNIT[selectedEmployee.subUnit] || []
-    : [];
+  useEffect(() => {
+  }, [employees]);
 
-  // Validation functions
+  useEffect(() => {
+    
+    if (!assignedTo) {
+      setAvailableCategories([]);
+      setCategory('');
+      return;
+    }
+
+    const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
+
+    if (selectedEmployee?.subUnit) {
+      const subUnitKey = selectedEmployee.subUnit as SubUnitType;
+      const categories = TASK_CATEGORIES_BY_SUB_UNIT[subUnitKey] || [];
+      
+      setAvailableCategories(categories);
+      setCategory('');
+    } else {
+      setAvailableCategories([]);
+      setCategory('');
+    }
+  }, [assignedTo, employees]);
+
+  const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
+
   const validateField = (field: string, value: string): string => {
     switch (field) {
       case 'title':
@@ -81,21 +103,18 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
     const newErrors: FormErrors = {};
     let isValid = true;
 
-    // Validate title
     const titleError = validateField('title', title);
     if (titleError) {
       newErrors.title = titleError;
       isValid = false;
     }
 
-    // Validate assignedTo
     const assignedToError = validateField('assignedTo', assignedTo);
     if (assignedToError) {
       newErrors.assignedTo = assignedToError;
       isValid = false;
     }
 
-    // Validate description
     const descriptionError = validateField('description', description);
     if (descriptionError) {
       newErrors.description = descriptionError;
@@ -103,8 +122,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
     }
 
     setErrors(newErrors);
-    
-    // Set touched for all fields to show errors
     setTouched({
       title: true,
       assignedTo: true,
@@ -118,7 +135,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
     e.preventDefault();
 
     if (!validateForm()) {
-      // Scroll to first error
       const firstError = document.querySelector('.text-red-600');
       if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -127,7 +143,7 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
       return;
     }
 
-    const selectedEmployee = employees.find(emp => emp.id === assignedTo);
+    const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
     if (!selectedEmployee) {
       toast.error('Please select an employee');
       return;
@@ -148,13 +164,13 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
 
       toast.success('Task assigned successfully!');
       
-      // Reset form
       setTitle('');
       setDescription('');
       setAssignedTo('');
       setPriority('medium');
       setDueDate('');
       setCategory('');
+      setAvailableCategories([]);
       setErrors({});
       setTouched({});
       onClose();
@@ -174,36 +190,46 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
     }
   };
 
-  // Check if a field has an error and should show it
   const shouldShowError = (field: string): boolean => {
     return touched[field] || Object.keys(errors).length > 0;
   };
 
-  // Get error message for a field
-  const getFieldError = (field: string): string => {
-    return errors[field as keyof FormErrors] || '';
-  };
+  useEffect(() => {
+    if (isOpen) {
+      setAssignedTo('');
+      setCategory('');
+      setAvailableCategories([]);
+      setTitle('');
+      setDescription('');
+      setPriority('medium');
+      setDueDate('');
+      setErrors({});
+      setTouched({});
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-800">Assign New Task</h2>
           <button 
             onClick={handleClose} 
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-colors"
             disabled={isSubmitting}
           >
-            ✕
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} className="p-6 space-y-4" noValidate>
           {/* Task Title */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Task Title <span className="text-red-500">*</span>
             </label>
             <input
@@ -217,10 +243,9 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
                 }
               }}
               onBlur={() => handleBlur('title')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0] ${
-                errors.title && shouldShowError('title') ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
+                errors.title && shouldShowError('title') ? 'border-red-500' : 'border-gray-200'
               }`}
-              required
               placeholder="Enter task title"
               disabled={isSubmitting}
             />
@@ -235,8 +260,8 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
           </div>
 
           {/* Description */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Description <span className="text-red-500">*</span>
             </label>
             <textarea
@@ -249,12 +274,11 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
                 }
               }}
               onBlur={() => handleBlur('description')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0] ${
-                errors.description && shouldShowError('description') ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
+                errors.description && shouldShowError('description') ? 'border-red-500' : 'border-gray-200'
               }`}
               rows={3}
-              placeholder="Enter task description (minimum 10 characters)"
-              required
+              placeholder="Describe the task in detail"
               disabled={isSubmitting}
             />
             {errors.description && shouldShowError('description') && (
@@ -268,30 +292,29 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
           </div>
 
           {/* Assign To */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Assign To <span className="text-red-500">*</span>
             </label>
             <select
               value={assignedTo}
               onChange={(e) => {
-                setAssignedTo(e.target.value);
-                setCategory('');
+                const value = e.target.value;
+                setAssignedTo(value);
                 if (touched.assignedTo) {
-                  const error = validateField('assignedTo', e.target.value);
+                  const error = validateField('assignedTo', value);
                   setErrors({ ...errors, assignedTo: error });
                 }
               }}
               onBlur={() => handleBlur('assignedTo')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0] ${
-                errors.assignedTo && shouldShowError('assignedTo') ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
+                errors.assignedTo && shouldShowError('assignedTo') ? 'border-red-500' : 'border-gray-200'
               }`}
-              required
               disabled={isSubmitting || employees.length === 0}
             >
               <option value="">Select employee</option>
-              {employees.map(emp => (
-                <option key={emp.id} value={emp.id}>
+              {employees.map((emp) => (
+                <option key={emp.id} value={String(emp.id)}>
                   {emp.name
                     .toLowerCase()
                     .replace(/\b\w/g, (char) => char.toUpperCase())}
@@ -314,33 +337,47 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
             )}
           </div>
 
-          {/* Task Category */}
-          {selectedEmployee && availableCategories.length > 0 && (
-            <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">
+          {/* Task Category - Only show when categories are available */}
+          {availableCategories.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Task Category
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value as TaskCategory)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+                onChange={(e) => setCategory(e.target.value as CategoryTable)}
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent"
                 disabled={isSubmitting}
               >
                 <option value="">Select category</option>
-                {availableCategories.map(cat => (
+                {availableCategories.map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
                 ))}
               </select>
             </div>
           )}
 
+          {/* No categories message */}
+          {selectedEmployee && availableCategories.length === 0 && selectedEmployee.subUnit && (
+            <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-100">
+              <p className="text-sm text-yellow-700">
+                No categories available for <strong>{selectedEmployee.subUnit}</strong> subunit.
+              </p>
+              <p className="text-xs text-yellow-600 mt-1">
+                Please contact your administrator to add categories for this subunit.
+              </p>
+            </div>
+          )}
+
           {/* Priority */}
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Priority</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Priority
+            </label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent"
               disabled={isSubmitting}
             >
               <option value="low">Low</option>
@@ -350,13 +387,15 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
           </div>
 
           {/* Due Date */}
-          <div className="mb-6">
-            <label className="block text-gray-700 font-medium mb-2">Due Date</label>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Due Date
+            </label>
             <input
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent"
               disabled={isSubmitting}
               min={new Date().toISOString().split('T')[0]}
             />
@@ -367,9 +406,9 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
-              <Button 
+            <Button 
               type="button" 
-              variant="primary" 
+              variant="secondary" 
               onClick={handleClose} 
               className="flex-1"
               disabled={isSubmitting}
@@ -379,7 +418,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
             <Button 
               type="submit" 
               className="flex-1"
-               variant="secondary" 
               disabled={isSubmitting || employees.length === 0}
             >
               {isSubmitting ? (

@@ -1,8 +1,8 @@
 import { getDb } from './db';
 import sql from 'mssql';
-import { TaskCategory } from '@/types';
+import { CategoryTable } from '@/types';
 
-export async function getCategoriesBySubUnit(subUnitName: string): Promise<TaskCategory[]> {
+export async function getCategoriesBySubUnit(subUnitName: string): Promise<CategoryTable[]> {
   try {
     const pool = await getDb();
     
@@ -24,7 +24,7 @@ export async function getCategoriesBySubUnit(subUnitName: string): Promise<TaskC
   }
 }
 
-export async function getCategoriesBySubUnitId(subUnitId: number): Promise<TaskCategory[]> {
+export async function getCategoriesBySubUnitId(subUnitId: number): Promise<CategoryTable[]> {
   try {
     const pool = await getDb();
     
@@ -62,7 +62,6 @@ export async function getAllCategoriesWithSubUnits() {
         ORDER BY u.SubUnit, c.CategoryName
       `);
 
-    // Group by subunit
     const grouped = result.recordset.reduce((acc: any, row: any) => {
       const key = row.SubUnitID;
       if (!acc[key]) {

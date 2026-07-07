@@ -2,44 +2,61 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import DailyReportForm from '@/components/dashboard/employee/DailyReportForm';
-import Card from '@/components/ui/Card';
-import { DailyReport, Task, TaskCategory } from '@/types';
-import { CheckSquare, FileText, Eye } from 'lucide-react';
-import TaskList from '@/components/dashboard/TaskList';
+import { DailyReport, Task } from '@/types';
+import {
+  FileText,
+  CheckSquare,
+  Clock,
+  TrendingUp,
+  Calendar,
+  ClipboardList,
+  ArrowRight,
+  User,
+  Building,
+  Briefcase,
+} from 'lucide-react';
+import Link from 'next/link';
 import { format } from 'date-fns';
-import { formatDate, formatTime } from '@/global/dateUtils';
-import toast from 'react-hot-toast';
 
 export default function EmployeeDashboard() {
   const { data: session } = useSession();
-  const [submittedReports, setSubmittedReports] = useState<DailyReport[]>([]);
+  const [reports, setReports] = useState<DailyReport[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState<'report' | 'tasks'>('report');
+  const [stats, setStats] = useState({
+    totalReports: 0,
+    pendingTasks: 0,
+    completedTasks: 0,
+    avgHours: 0,
+  });
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<TaskCategory | undefined>();
-  const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
-  const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const reportsRes = await fetch('/api/reports');
-        if (!reportsRes.ok) throw new Error('Failed to fetch reports');
-        const reportsData = await reportsRes.json();
-        setSubmittedReports(reportsData);
+        const [reportsRes, tasksRes] = await Promise.all([
+          fetch('/api/reports'),
+          fetch('/api/tasks'),
+        ]);
 
-        const tasksRes = await fetch('/api/tasks');
-        if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
+        const reportsData = await reportsRes.json();
         const tasksData = await tasksRes.json();
+
+        setReports(reportsData);
         setTasks(tasksData);
-        setFilteredTasks(tasksData);
-      } catch (err) {
-        setError('Failed to load data');
-        console.error(err);
+
+        const completed = tasksData.filter((t: Task) => t.status === 'completed').length;
+        const pending = tasksData.filter((t: Task) => t.status !== 'completed').length;
+        const totalHours = reportsData.reduce((sum: number, r: DailyReport) => sum + r.hoursWorked, 0);
+        const avgHours = reportsData.length > 0 ? (totalHours / reportsData.length) : 0;
+
+        setStats({
+          totalReports: reportsData.length,
+          pendingTasks: pending,
+          completedTasks: completed,
+          avgHours: Math.round(avgHours * 10) / 10
+        });
+      } catch (error) {
+        console.error('Error fetching data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -50,381 +67,247 @@ export default function EmployeeDashboard() {
     }
   }, [session]);
 
-  useEffect(() => {
-    if (selectedCategory) {
-      setFilteredTasks(tasks.filter(task => task.category === selectedCategory));
-    } else {
-      setFilteredTasks(tasks);
-    }
-  }, [selectedCategory, tasks]);
+  const recentReports = reports.slice(0, 5);
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const todayReports = reports.filter(r => r.date === today);
 
-  const handleSubmitReport = async (reportData: any) => {
-    try {
-      setError('');
-      const response = await fetch('/api/reports', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(reportData),
-      });
+  const StatCard = ({ icon: Icon, label, value, color, bgColor }: any) => (
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500 font-medium">{label}</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{value}</p>
+        </div>
+        <div className={`p-3 rounded-lg ${bgColor}`}>
+          <Icon size={20} className="text-white" />
+        </div>
+      </div>
+    </div>
+  );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit report');
-      }
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-[#0088D0] border-t-transparent"></div>
+          <p className="mt-4 text-gray-500 font-medium">Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
-      const newReport = await response.json();
-      setSubmittedReports([newReport, ...submittedReports]);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-      
-      toast.success('Report submitted successfully!');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to submit report');
-      toast.error(err instanceof Error ? err.message : 'Failed to submit report');
-    }
-  };
-
-  const handleStatusUpdate = async (taskId: number, status: Task['status']) => {
-    try {
-      const response = await fetch('/api/tasks', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ taskId, status }),
-      });
-
-      if (!response.ok) throw new Error('Failed to update task status');
-
-      const updatedTask = await response.json();
-      const updatedTasks = tasks.map(task => task.id === taskId ? updatedTask : task);
-      setTasks(updatedTasks);
-      setFilteredTasks(updatedTasks.filter(task =>
-        !selectedCategory || task.category === selectedCategory
-      ));
-      
-      if (status === 'completed') {
-        toast.success('Task marked as completed!');
-        const tasksRes = await fetch('/api/tasks');
-        if (tasksRes.ok) {
-          const tasksData = await tasksRes.json();
-          setTasks(tasksData);
-          setFilteredTasks(tasksData.filter((task: Task) =>
-            !selectedCategory || task.category === selectedCategory
-          ));
-        }
-      } else {
-        toast.success('Task status updated!');
-      }
-      
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 3000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update status');
-      toast.error(err instanceof Error ? err.message : 'Failed to update status');
-    } 
-  };
-
-  const handleTaskCompleted = async (taskId: number) => {
-    try {
-      const tasksRes = await fetch('/api/tasks');
-      if (tasksRes.ok) {
-        const tasksData = await tasksRes.json();
-        setTasks(tasksData);
-        setFilteredTasks(tasksData.filter((task: Task) =>
-          !selectedCategory || task.category === selectedCategory
-        ));
-      }
-    } catch (err) {
-      console.error('Error refreshing tasks:', err);
-    }
-  };
-
-  const openReportModal = (report: DailyReport) => {
-    setSelectedReport(report);
-    setIsModalOpen(true);
-  };
-
-  const closeReportModal = () => {
-    setIsModalOpen(false);
-    setSelectedReport(null);
-  };
-
-  const pendingTasks = tasks.filter(t => t.status !== 'completed').length;
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
+  const userName = session?.user?.name
+    ?.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ') || 'User';
 
   return (
-    <div className="space-y-8">
-      <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
-          Welcome, {session?.user?.name
-            ?.split(' ')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-            .join(' ')}!        
-        </h2>
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-          <span>Department: <strong className='capitalize'>{session?.user?.department}</strong></span>
-          {session?.user?.subUnit && (
-            <span>Sub-Unit: <strong className='capitalize'>{session?.user?.subUnit}</strong></span>
-          )}
-          <span>Role: <strong className='capitalize'>{session?.user?.role}</strong></span>
-        </div>
-      </div>
-
-      {showSuccess && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
-          ✓ Operation completed successfully!
-        </div>
-      )}
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-          ✗ {error}
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <div className="text-center">
-            <div className="text-3xl font-bold" style={{ color: '#0088D0' }}>
-              {submittedReports.length}
-            </div>
-            <div className="text-gray-600 text-sm mt-1">Reports Submitted</div>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <div className="text-3xl font-bold" style={{ color: '#0088D0' }}>
-              {pendingTasks}
-            </div>
-            <div className="text-gray-600 text-sm mt-1">Pending Tasks</div>
-          </div>
-        </Card>
-        <Card>
-          <div className="text-center">
-            <div className="text-3xl font-bold" style={{ color: '#0088D0' }}>
-              {completedTasks}
-            </div>
-            <div className="text-gray-600 text-sm mt-1">Completed Tasks</div>
-          </div>
-        </Card>
-      </div>
-
-      <div className="bg-gray-100 p-1 rounded-xl mb-6">
-        <nav className="flex gap-1" role="tablist">
-          <button
-            onClick={() => setActiveTab('report')}
-            className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${activeTab === 'report'
-              ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-              }`}
-            role="tab"
-            aria-selected={activeTab === 'report'}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <FileText className={`w-4 h-4 transition-colors ${activeTab === 'report' ? 'text-[#0088D0]' : 'text-gray-400'
-                }`} />
-              <span>Submit Report</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('tasks')}
-            className={`flex-1 px-6 py-2.5 font-medium rounded-lg transition-all duration-200 ${activeTab === 'tasks'
-              ? 'bg-white text-[#0088D0] shadow-md scale-[0.98]'
-              : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-              }`}
-            role="tab"
-            aria-selected={activeTab === 'tasks'}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <CheckSquare className={`w-4 h-4 transition-colors ${activeTab === 'tasks' ? 'text-[#0088D0]' : 'text-gray-400'
-                }`} />
-              <span>My Tasks</span>
-              <span className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${activeTab === 'tasks'
-                ? 'bg-[#0088D0]/10 text-[#0088D0]'
-                : 'bg-gray-200 text-gray-600'
-                }`}>
-                {tasks.length}
+    <div className="space-y-6">
+      {/* Welcome Section */}
+      <div className=" py-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-[#0088D0]/10 flex items-center justify-center flex-shrink-0">
+              <span className="text-2xl font-bold text-[#0088D0]">
+                {userName.charAt(0)}
               </span>
             </div>
-          </button>
-        </nav>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">
+                Welcome back, <span className="text-[#981E52]">{userName}</span>
+              </h1>
+              <p className="text-gray-500 text-sm mt-0.5">
+                Here's what's happening with your work today
+              </p>
+            </div>
+          </div>
+          
+          <Link
+            href="/dashboard/employee/reports/new"
+            className="px-5 py-2.5 bg-[#0088D0] text-white rounded-lg hover:bg-[#0077b8] transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md flex-shrink-0"
+          >
+            <FileText size={18} />
+            New Report
+          </Link>
+        </div>
+
+        {/* User Info Tags */}
+        <div className="flex flex-wrap items-center gap-3 mt-4 pt-4 border-t border-gray-100/80">
+          <div className="flex items-center gap-2 text-sm text-gray-600 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+            <Building size={14} className="text-[#0088D0]" />
+            <span className="font-medium">Department:</span>
+            <span className="capitalize text-gray-800">{session?.user?.department}</span>
+          </div>
+          {session?.user?.subUnit && (
+            <div className="flex items-center gap-2 text-sm text-gray-600 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+              <Briefcase size={14} className="text-[#981E52]" />
+              <span className="font-medium">Sub-Unit:</span>
+              <span className="capitalize text-gray-800">{session?.user?.subUnit}</span>
+            </div>
+          )}
+          <div className="flex items-center gap-2 text-sm text-gray-600 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+            <User size={14} className="text-blue-500" />
+            <span className="font-medium">Role:</span>
+            <span className="capitalize text-gray-800">{session?.user?.role}</span>
+          </div>
+        </div>
       </div>
 
-      {activeTab === 'report' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-          <DailyReportForm onSubmit={handleSubmitReport} />
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard
+          icon={FileText}
+          label="Total Reports"
+          value={stats.totalReports}
+          bgColor="bg-gradient-to-br from-blue-500 to-blue-600"
+        />
+        <StatCard
+          icon={Clock}
+          label="Pending Tasks"
+          value={stats.pendingTasks}
+          bgColor="bg-gradient-to-br from-yellow-500 to-yellow-600"
+        />
+        <StatCard
+          icon={CheckSquare}
+          label="Completed Tasks"
+          value={stats.completedTasks}
+          bgColor="bg-gradient-to-br from-green-500 to-green-600"
+        />
+        <StatCard
+          icon={TrendingUp}
+          label="Average Hours Worked"
+          value={`${stats.avgHours}h`}
+          bgColor="bg-gradient-to-br from-purple-500 to-purple-600"
+        />
+      </div>
 
-          <div className="space-y-6">
-            <Card title="Your Recent Reports">
-              {isLoading ? (
-                <p className="text-gray-500 text-center py-8">Loading...</p>
-              ) : submittedReports.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No reports submitted yet</p>
-              ) : (
-                <div className="space-y-4 overflow-y-auto">
-                  {submittedReports.map(report => (
-                    <div key={report.id} className="border border-gray-200 rounded-md p-4 hover:shadow-sm transition-shadow">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <p className="text-xs uppercase tracking-wide text-gray-400">
-                            Report Date
-                          </p>
-                          <div className="font-semibold text-md text-gray-800">
-                            {format(new Date(report.date), 'MMM d, yyyy')}
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <p className="text-xs text-gray-400">Submitted</p>
-                          <p className="font-medium text-[#0088D0]">
-                            {formatTime(report.submittedAt)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-y-1 text-sm">
-                        <p><strong>Tasks:</strong> {report.tasks.length} completed</p>
-                        <p><strong>Hours:</strong> {report.hoursWorked}hr</p>
-                        <p><strong>Status:</strong> <span className="text-green-600">✓ Submitted</span></p>
-                      </div>
-                      <button
-                        onClick={() => openReportModal(report)}
-                        className="mt-3 flex items-center gap-2 text-sm text-[#0088D0] hover:underline"
-                      >
-                        <Eye className="w-4 h-4" />
-                        View Details
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </Card>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <TaskList
-            tasks={filteredTasks}
-            userRole="employee"
-            onStatusUpdate={handleStatusUpdate}
-            onTaskCompleted={handleTaskCompleted}
-          />
-        </div>
-      )}
-
-      {isModalOpen && selectedReport && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-              <h3 className="text-xl font-semibold text-gray-800">
-                Report's Detail
-              </h3>
-              <button
-                onClick={closeReportModal}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
-              >
-                ✕
-              </button>
+      {/* Today's Progress & Recent Reports */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <Calendar size={20} className="text-[#0088D0]" />
+            Today's Progress
+          </h2>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Reports Submitted</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                {todayReports.length}
+              </span>
             </div>
+            <div className="flex justify-between items-center py-2 border-b border-gray-100">
+              <span className="text-gray-600">Tasks Completed</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium">
+                {tasks.filter(t => t.status === 'completed').length}
+              </span>
+            </div>
+            <div className="flex justify-between items-center py-2">
+              <span className="text-gray-600">Pending Tasks</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-50 text-yellow-700 rounded-full text-sm font-medium">
+                {tasks.filter(t => t.status !== 'completed').length}
+              </span>
+            </div>
+          </div>
+          <Link
+            href="/dashboard/employee/tasks"
+            className="mt-4 inline-flex items-center gap-1 text-sm text-[#0088D0] hover:text-[#0077b8] font-medium hover:underline transition-colors"
+          >
+            View all tasks
+            <ArrowRight size={16} />
+          </Link>
+        </div>
 
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-                <div>
-                  <p className="text-sm text-gray-500">Employee</p>
-                  <p className="capitalize font-medium text-gray-800">{selectedReport.userName}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Date</p>
-                  <p className="font-medium text-gray-800">
-                    {formatDate(selectedReport.date)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Hours Worked</p>
-                  <p className="font-medium text-gray-800">{selectedReport.hoursWorked} hours</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Submitted At</p>
-                  <p className="font-medium text-gray-800">
-                    {formatTime(selectedReport.submittedAt)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500">Status</p>
-                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                    {selectedReport.status}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <FileText size={20} className="text-[#0088D0]" />
+            Recent Reports
+          </h2>
+          {recentReports.length === 0 ? (
+            <div className="text-center py-6">
+              <ClipboardList size={40} className="text-gray-300 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">No reports yet</p>
+              <Link
+                href="/dashboard/employee/reports/new"
+                className="text-sm text-[#0088D0] hover:underline mt-2 inline-block"
+              >
+                Submit your first report →
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {recentReports.map((report) => (
+                <div 
+                  key={report.id} 
+                  className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#0088D0]/10 flex items-center justify-center flex-shrink-0">
+                      <FileText size={14} className="text-[#0088D0]" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-800 text-sm">
+                        {format(new Date(report.date), 'MMM d, yyyy')}
+                      </p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <span>{report.tasks.length} tasks</span>
+                        <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                        <span>{report.hoursWorked}h worked</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    Submitted
                   </span>
                 </div>
-              </div>
-
-              <div>
-                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <span className="w-1 h-6 bg-[#0088D0] rounded"></span>
-                  Tasks Completed ({selectedReport.tasks.length})
-                </h4>
-                <ul className="space-y-2">
-                  {selectedReport.tasks.map((task, index) => (
-                    <li key={index} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
-                      <span className="text-[#0088D0] font-bold text-sm mt-0.5">{index + 1}.</span>
-                      <span className="text-gray-700">{task}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-
-              {selectedReport.taskDescription && selectedReport.taskDescription.trim() && (
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                    <span className="w-1 h-6 bg-blue-400 rounded"></span>
-                    Task Description
-                  </h4>
-                  <p className="text-gray-700 bg-blue-50 p-4 rounded-lg border border-blue-100">
-                    {selectedReport.taskDescription}
-                  </p>
-                </div>
-              )}
-
-              {selectedReport.challenges && selectedReport.challenges.trim() && (
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                    <span className="w-1 h-6 bg-yellow-500 rounded"></span>
-                    Challenges Faced
-                  </h4>
-                  <p className="text-gray-700 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                    {selectedReport.challenges}
-                  </p>
-                </div>
-              )}
-
-              {selectedReport.tomorrowPlan && selectedReport.tomorrowPlan.length > 0 && (
-                <div>
-                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                    <span className="w-1 h-6 bg-green-500 rounded"></span>
-                    Plan for Tomorrow
-                  </h4>
-                  <ul className="space-y-2">
-                    {selectedReport.tomorrowPlan.map((plan, index) => (
-                      <li key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                        <span className="text-green-600 font-bold text-sm mt-0.5">{index + 1}.</span>
-                        <span className="text-gray-700">{plan}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+              ))}
             </div>
-
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4">
-              <button
-                onClick={closeReportModal}
-                className="w-full px-4 py-2 bg-[#0088D0] text-white rounded-lg hover:bg-[#0077b8] transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
+          )}
+          {reports.length > 0 && (
+            <Link
+              href="/dashboard/employee/reports"
+              className="mt-4 inline-flex items-center gap-1 text-sm text-[#0088D0] hover:text-[#0077b8] font-medium hover:underline transition-colors"
+            >
+              View all reports
+              <ArrowRight size={16} />
+            </Link>
+          )}
         </div>
-      )}
+      </div>
+
+      {/* Quick Links */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Link
+          href="/dashboard/employee/reports/new"
+          className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center hover:shadow-md transition-all duration-200 group hover:scale-[1.02]"
+        >
+          <div className="w-12 h-12 rounded-full bg-blue-50 mx-auto flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+            <FileText size={24} className="text-blue-500" />
+          </div>
+          <p className="mt-2.5 text-sm font-medium text-gray-700">Submit Report</p>
+          <p className="text-xs text-gray-400 mt-0.5">Create a new daily report</p>
+        </Link>
+        <Link
+          href="/dashboard/employee/tasks"
+          className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center hover:shadow-md transition-all duration-200 group hover:scale-[1.02]"
+        >
+          <div className="w-12 h-12 rounded-full bg-yellow-50 mx-auto flex items-center justify-center group-hover:bg-yellow-100 transition-colors">
+            <CheckSquare size={24} className="text-yellow-500" />
+          </div>
+          <p className="mt-2.5 text-sm font-medium text-gray-700">My Tasks</p>
+          <p className="text-xs text-gray-400 mt-0.5">View and manage tasks</p>
+        </Link>
+        <Link
+          href="/dashboard/employee/reports"
+          className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 text-center hover:shadow-md transition-all duration-200 group hover:scale-[1.02]"
+        >
+          <div className="w-12 h-12 rounded-full bg-green-50 mx-auto flex items-center justify-center group-hover:bg-green-100 transition-colors">
+            <ClipboardList size={24} className="text-green-500" />
+          </div>
+          <p className="mt-2.5 text-sm font-medium text-gray-700">Report History</p>
+          <p className="text-xs text-gray-400 mt-0.5">View all your reports</p>
+        </Link>
+      </div>
     </div>
   );
 }

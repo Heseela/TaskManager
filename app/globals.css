@@ -1,29 +1,82 @@
 @import "tailwindcss";
 
-  :root {
-    --primary: #0088D0;
-    --secondary: #981E52;
-  }
+:root {
+  --primary: #0088D0;
+  --secondary: #981E52;
+}
 
 
-  .btn-primary {
-    @apply px-4 py-2 text-white transition-all duration-200 rounded-md hover:opacity-90;
-    background-color: var(--primary);
+.btn-primary {
+  @apply px-4 py-2 text-white transition-all duration-200 rounded-md hover:opacity-90;
+  background-color: var(--primary);
+}
+
+.btn-secondary {
+  @apply px-4 py-2 text-white transition-all duration-200 rounded-md hover:opacity-90;
+  background-color: var(--secondary);
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+}
+
+.input-field {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-md;
+}
+
+.dashboard-title {
+  @apply text-2xl font-semibold mb-6 pb-3 border-b-2 border-[#0088D0];
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
-  
-  .btn-secondary {
-    @apply px-4 py-2 text-white transition-all duration-200 rounded-md hover:opacity-90;
-    background-color: var(--secondary);
+
+  to {
+    opacity: 1;
   }
-  
-  .card {
-    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
   }
-  
-  .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-md;
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
-  
-  .dashboard-title {
-    @apply text-2xl font-semibold mb-6 pb-3 border-b-2 border-[#0088D0];
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
   }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
