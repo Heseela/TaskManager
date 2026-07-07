@@ -25,7 +25,7 @@ export async function GET(request: Request) {
         u.SubUnit AS SubUnitName,
         c.CategoryName,
         c.CreatedAt
-      FROM TaskCategory c
+      FROM CategoryTable c
       INNER JOIN UnitTable u ON c.SubUnitID = u.ID
     `;
     
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
       .input('categoryName', sql.VarChar, categoryName)
       .query(`
         SELECT COUNT(*) AS Count
-        FROM TaskCategory
+        FROM CategoryTable
         WHERE SubUnitID = @subUnitId AND CategoryName = @categoryName
       `);
 
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       .input('subUnitId', sql.Int, subUnitId)
       .input('categoryName', sql.VarChar, categoryName)
       .query(`
-        INSERT INTO TaskCategory (SubUnitID, CategoryName, CreatedAt)
+        INSERT INTO CategoryTable (SubUnitID, CategoryName, CreatedAt)
         VALUES (@subUnitId, @categoryName, GETDATE());
         
         SELECT SCOPE_IDENTITY() AS ID;
@@ -160,7 +160,7 @@ export async function PUT(request: Request) {
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
         SELECT SubUnitID
-        FROM TaskCategory
+        FROM CategoryTable
         WHERE ID = @categoryId
       `);
 
@@ -175,7 +175,7 @@ export async function PUT(request: Request) {
       .input('categoryId', sql.Int, parseInt(categoryId))
       .input('categoryName', sql.VarChar, categoryName)
       .query(`
-        UPDATE TaskCategory
+        UPDATE CategoryTable
         SET CategoryName = @categoryName
         WHERE ID = @categoryId
       `);
@@ -219,7 +219,7 @@ export async function DELETE(request: Request) {
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
         SELECT ID
-        FROM TaskCategory
+        FROM CategoryTable
         WHERE ID = @categoryId
       `);
 
@@ -233,7 +233,7 @@ export async function DELETE(request: Request) {
     await pool.request()
       .input('categoryId', sql.Int, parseInt(categoryId))
       .query(`
-        DELETE FROM TaskCategory
+        DELETE FROM CategoryTable
         WHERE ID = @categoryId
       `);
 

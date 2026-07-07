@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import Button from '../../ui/Button';
-import { TaskCategory, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types';
+import { CategoryTable, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types';
 
 interface AssignTaskModalProps {
   isOpen: boolean;
@@ -27,12 +27,12 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [dueDate, setDueDate] = useState('');
-  const [category, setCategory] = useState<TaskCategory | ''>('');
+  const [category, setCategory] = useState<CategoryTable | ''>('');
   const [assignedTo, setAssignedTo] = useState<string>('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availableCategories, setAvailableCategories] = useState<TaskCategory[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<CategoryTable[]>([]);
 
   useEffect(() => {
   }, [employees]);
@@ -345,7 +345,7 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
               </label>
               <select
                 value={category}
-                onChange={(e) => setCategory(e.target.value as TaskCategory)}
+                onChange={(e) => setCategory(e.target.value as CategoryTable)}
                 className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent"
                 disabled={isSubmitting}
               >

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { DailyReport } from '@/types';
 import { format } from 'date-fns';
-import { Filter, Eye, Calendar, Clock, User, CheckCircle, FileText, Users, Building, ChevronLeft, ChevronRight, Paperclip, Download, File, Image, FileArchive, FileSpreadsheet, FileCode, X, EyeIcon } from 'lucide-react';
+import { Filter, Eye, Calendar, Clock, User, CheckCircle, FileText, Users, Building, ChevronLeft, ChevronRight, Paperclip, File, Image, FileArchive, FileSpreadsheet, FileCode, X, EyeIcon } from 'lucide-react';
 
 export default function TeamReportsPage() {
   const { data: session } = useSession();
@@ -682,30 +682,6 @@ export default function TeamReportsPage() {
           </div>
         </div>
       )}
-
-      {/* Add animation styles */}
-      <style jsx>{`
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes slideUp {
-          from { 
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-          }
-          to { 
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.2s ease-out;
-        }
-        .animate-slideUp {
-          animation: slideUp 0.3s ease-out;
-        }
-      `}</style>
     </div>
   );
 }

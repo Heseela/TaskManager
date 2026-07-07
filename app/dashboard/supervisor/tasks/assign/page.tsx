@@ -7,7 +7,7 @@ import { ArrowLeft, Users, Calendar, AlertCircle, Send } from 'lucide-react';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { SubUnitType, TASK_CATEGORIES_BY_SUB_UNIT, TaskCategory } from '@/types';
+import { SubUnitType, TASK_CATEGORIES_BY_SUB_UNIT, CategoryTable } from '@/types';
 import toast from 'react-hot-toast';
 
 interface Employee {

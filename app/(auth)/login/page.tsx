@@ -132,10 +132,10 @@ export default function LoginPage() {
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#981E52] mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#0088D0] mb-4">
             <span className="text-white font-bold text-2xl">WR</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-[#981E52]">Welcome Back</h1>
           <p className="text-gray-500 mt-1">Sign in to your account</p>
         </div>
 
@@ -165,7 +165,7 @@ export default function LoginPage() {
                   }
                 }}
                 onBlur={() => handleBlur('email')}
-                placeholder="employee@company.com"
+                placeholder="employee@gamil.com"
                 className={`pl-10 ${errors.email && shouldShowError('email') ? 'border-red-500' : ''}`}
                 required
                 disabled={loading}
@@ -221,6 +221,7 @@ export default function LoginPage() {
 
           <Button
             type="submit"
+            variant='primary'
             disabled={loading}
             className="w-full flex items-center justify-center gap-2"
           >

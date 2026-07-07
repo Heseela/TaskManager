@@ -46,7 +46,7 @@ export interface Task {
   dueDate: string;
   createdAt: string;
   updatedAt: string;
-  category?: TaskCategory;
+  category?: CategoryTable;
 }
 
 export interface SafeUser {
@@ -81,20 +81,20 @@ export type SubUnitType =
   | 'CTO';
 
 
-export interface TaskCategoryDB {
+export interface CategoryTableDB {
   ID: number;
   SubUnitID: number;
-  CategoryName: TaskCategory;
+  CategoryName: CategoryTable;
   CreatedAt: string;
 }
 
 export interface SubUnitWithCategories {
   ID: number;
   SubUnit: SubUnitType;
-  Categories: TaskCategory[];
+  Categories: CategoryTable[];
 }
 
-export type TaskCategory =
+export type CategoryTable =
   | 'PRTG Scan'
   | 'Network Policy'
   | 'Internet Allow'
@@ -128,7 +128,7 @@ export const SUB_UNITS_BY_DEPARTMENT: Record<DepartmentType, SubUnitType[]> = {
   IT: ['Developer', 'Network', 'Support', 'Infra', 'CBS']
 };
 
-export const TASK_CATEGORIES_BY_SUB_UNIT: Record<SubUnitType, TaskCategory[]> = {
+export const TASK_CATEGORIES_BY_SUB_UNIT: Record<SubUnitType, CategoryTable[]> = {
   'Network': ['PRTG Scan', 'Network Policy', 'Internet Allow', 'Server Network Configuration'],
   'Developer': ['Application Development', 'Database', 'Query', 'App/Db Server Monitor', 'Email Job for Report'],
   'Support': ['Printer Setup', 'User Access', 'PC Setup', 'Email Setup', 'Camera Monitoring', 'Domain Setup'],

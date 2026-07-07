@@ -61,7 +61,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
                   {session?.user?.name}
                 </p>
                 <p className="text-xs text-gray-500 capitalize">
-                  {session?.user?.role || 'User'}
+                  {session?.user?.role}
                 </p>
               </div>
               <div className="px-4 py-2">
@@ -71,22 +71,6 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.2s ease-out;
-        }
-      `}</style>
     </header>
   );
 }

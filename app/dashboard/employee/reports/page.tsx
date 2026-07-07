@@ -48,7 +48,6 @@ export default function EmployeeReportsPage() {
   }, [filterDate, reports]);
 
   const viewReport = (report: DailyReport) => {
-    console.log('Report file attachments:', report.fileAttachments);
     setSelectedReport(report);
     setIsModalOpen(true);
   };
@@ -378,18 +377,20 @@ export default function EmployeeReportsPage() {
               </div>
 
               {/* Add Previous Task Description */}
-              <div>
-                <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-teal-500 rounded-full"></span>
-                  Previous Task Description
-                </h4>
-                <div className="bg-teal-50/70 p-4 rounded-lg border border-teal-100">
-                  <p className="text-gray-700 leading-relaxed">
-                    {selectedReport.previousTaskDescription || 'No description provided'}
-                  </p>
+                {selectedReport.previousTaskDescription && (
+                <div>
+                  <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
+                    <span className="w-1 h-5 bg-teal-500 rounded-full"></span>
+                    Previous Task Description
+                  </h4>
+                  <div className="bg-teal-50/70 p-4 rounded-lg border border-teal-100">
+                    <p className="text-gray-700 leading-relaxed">
+                      {selectedReport.previousTaskDescription}
+                    </p>
+                  </div>
                 </div>
-              </div>
-
+              )}
+              
               {/* Challenges */}
               {selectedReport.challenges && (
                 <div>

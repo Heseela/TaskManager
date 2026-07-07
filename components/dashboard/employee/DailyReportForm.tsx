@@ -5,9 +5,9 @@ import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import Button from '../../ui/Button';
 import Card from '../../ui/Card';
-import { SubUnitType, TaskCategory, Task } from '@/types';
+import { SubUnitType, CategoryTable, Task } from '@/types';
 import FileUpload from './FileUpload';
-import { Plus, X, AlertCircle, Clock, FileText, Calendar, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Plus, X, AlertCircle, Clock, FileText, Calendar, CheckCircle2, AlertTriangle, ChevronDown } from 'lucide-react';
 
 interface FormErrors {
   tasks?: string;
@@ -28,7 +28,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
   const [tomorrowPlan, setTomorrowPlan] = useState(['']);
   const [taskDescription, setTaskDescription] = useState('');
   const [previoustaskDescription, setPreviousTaskDescription] = useState('');
-  const [availableCategories, setAvailableCategories] = useState<TaskCategory[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<CategoryTable[]>([]);
   const [assignedTasks, setAssignedTasks] = useState<Task[]>([]);
   const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [isLoadingTasks, setIsLoadingTasks] = useState(false);
@@ -150,15 +150,15 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
 
   const isStepAccessible = (stepIndex: number): boolean => {
     if (stepIndex === 0) return true;
-    
+
     if (stepIndex === 1) {
       return isStepValid('tasks');
     }
-    
+
     if (stepIndex === 2) {
       return isStepValid('tasks') && isStepValid('details');
     }
-    
+
     return true;
   };
 
@@ -204,7 +204,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
     }
 
     setErrors(newErrors);
-    
+
     const newStepErrors: StepError = {};
     if (newErrors.tasks) newStepErrors.tasks = true;
     if (newErrors.taskDescription || newErrors.hoursWorked) newStepErrors.details = true;
@@ -223,12 +223,12 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
 
   const updateTaskField = (index: number, value: string) => {
     setTasks(prev => prev.map((item, i) => i === index ? value : item));
-    
+
     const hasSelectedTask = tasks.some((t, i) => i !== index ? t.trim() : value.trim());
     if (hasSelectedTask) {
       setErrors(prev => ({ ...prev, tasks: '' }));
     }
-    
+
     setTimeout(() => updateStepErrors(), 0);
   };
 
@@ -261,20 +261,18 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
     if (!isStepAccessible(index)) {
       if (index === 1 && !isStepValid('tasks')) {
         toast.error('Please complete the Tasks step first', {
-          icon: '⚠️',
+          icon: '',
           duration: 3000,
         });
         setCurrentStep(0);
       } else if (index === 2) {
         if (!isStepValid('tasks')) {
           toast.error('Please complete the Tasks step first', {
-            icon: '⚠️',
             duration: 3000,
           });
           setCurrentStep(0);
         } else if (!isStepValid('details')) {
           toast.error('Please complete the Details step first', {
-            icon: '⚠️',
             duration: 3000,
           });
           setCurrentStep(1);
@@ -282,38 +280,37 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
       }
       return;
     }
-    
+
     setCurrentStep(index);
   };
 
   const handleNextStep = () => {
     const stepId = steps[currentStep].id;
-    
+
     if (!isStepValid(stepId)) {
       setShowErrors(true);
-      
+
       if (stepId === 'tasks') {
         const selectedTasks = tasks.filter(t => t.trim());
         if (selectedTasks.length === 0) {
           setErrors(prev => ({ ...prev, tasks: 'Please select at least one task' }));
           toast.error('Please select at least one task before proceeding', {
-            icon: '⚠️',
             duration: 3000,
           });
         }
       } else if (stepId === 'details') {
         const descriptionError = validateField('taskDescription', taskDescription);
         const hoursError = validateField('hoursWorked', hoursWorked);
-        
+
         const newErrors: FormErrors = {};
         if (descriptionError) newErrors.taskDescription = descriptionError;
         if (hoursError) newErrors.hoursWorked = hoursError;
         setErrors(newErrors);
-        
+
         const errorMessages = [];
         if (descriptionError) errorMessages.push(`• ${descriptionError}`);
         if (hoursError) errorMessages.push(`• ${hoursError}`);
-        
+
         toast.error(
           <div className="flex flex-col gap-1">
             <span className="font-medium">Please fix the following errors:</span>
@@ -329,17 +326,17 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
           { duration: 4000 }
         );
       }
-      
+
       setTimeout(() => updateStepErrors(), 0);
       return;
     }
-    
+
     setCurrentStep(prev => prev + 1);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setShowErrors(true);
 
     const isValid = validateForm();
@@ -384,7 +381,6 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
     const selectedTasks = tasks.filter(t => t.trim());
 
     setIsSubmitting(true);
-    const loadingToast = toast.loading('Submitting report...');
 
     try {
       const reportData = {
@@ -399,10 +395,6 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
       };
 
       onSubmit(reportData);
-
-      toast.success('Report submitted successfully!', {
-        id: loadingToast,
-      });
 
       setTasks(['']);
       setHoursWorked(8);
@@ -420,9 +412,6 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
 
     } catch (error) {
       console.error('Error submitting report:', error);
-      toast.error('Failed to submit report. Please try again.', {
-        id: loadingToast,
-      });
     } finally {
       setIsSubmitting(false);
     }
@@ -436,7 +425,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
     });
 
     assignedTasks.forEach(task => {
-      options.push({ value: task.title, label: `${task.title} (Assigned Task)`, type: 'assigned' });
+      options.push({ value: task.title, label: `${task.title} (assigned)`, type: 'assigned' });
     });
 
     return options;
@@ -460,17 +449,16 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
                 type="button"
                 onClick={() => handleStepClick(index)}
                 disabled={!isAccessible || isSubmitting}
-                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 relative ${
-                  !isAccessible
-                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                    : isActive 
-                      ? 'bg-[#0088D0] text-white shadow-lg shadow-[#0088D0]/30 ring-2 ring-[#0088D0] ring-offset-2' 
-                      : isCompleted && !hasError
-                        ? 'bg-green-500 text-white' 
-                        : hasError
-                          ? 'bg-red-500 text-white shadow-lg shadow-red-500/30 ring-2 ring-red-500 ring-offset-2 animate-pulse'
-                          : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
-                }`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 relative ${!isAccessible
+                  ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
+                  : isActive
+                    ? 'bg-[#0088D0] text-white shadow-lg shadow-[#0088D0]/30 ring-2 ring-[#0088D0] ring-offset-2'
+                    : isCompleted && !hasError
+                      ? 'bg-green-500 text-white'
+                      : hasError
+                        ? 'bg-red-500 text-white shadow-lg shadow-red-500/30 ring-2 ring-red-500 ring-offset-2 animate-pulse'
+                        : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
+                  }`}
               >
                 {!isAccessible ? (
                   <Lock size={16} />
@@ -487,30 +475,27 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
                   </span>
                 )}
               </button>
-              <span className={`text-xs font-medium mt-2 flex items-center gap-1 ${
-                !isAccessible
-                  ? 'text-gray-300'
-                  : isActive 
-                    ? 'text-[#0088D0]' 
-                    : hasError 
-                      ? 'text-red-500' 
-                      : 'text-gray-500'
-              }`}>
+              <span className={`text-xs font-medium mt-2 flex items-center gap-1 ${!isAccessible
+                ? 'text-gray-300'
+                : isActive
+                  ? 'text-[#0088D0]'
+                  : hasError
+                    ? 'text-red-500'
+                    : 'text-gray-500'
+                }`}>
                 {step.label}
-                {!isAccessible && <Lock size={10} />}
                 {hasError && isAccessible && <AlertCircle size={12} className="text-red-500" />}
               </span>
             </div>
             {index < steps.length - 1 && (
-              <div className={`flex-1 h-0.5 mx-4 transition-colors duration-300 ${
-                !isStepAccessible(index + 1)
-                  ? 'bg-gray-100'
-                  : index < currentStep && !stepErrors[steps[index + 1]?.id] 
-                    ? 'bg-green-500' 
-                    : showErrors && stepErrors[steps[index + 1]?.id] 
-                      ? 'bg-red-300'
-                      : 'bg-gray-200'
-              }`} />
+              <div className={`flex-1 h-0.5 mx-4 transition-colors duration-300 ${!isStepAccessible(index + 1)
+                ? 'bg-gray-100'
+                : index < currentStep && !stepErrors[steps[index + 1]?.id]
+                  ? 'bg-green-500'
+                  : showErrors && stepErrors[steps[index + 1]?.id]
+                    ? 'bg-red-300'
+                    : 'bg-gray-200'
+                }`} />
             )}
           </div>
         );
@@ -524,15 +509,15 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
   };
 
   const Lock = ({ size = 16 }) => (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
       strokeLinejoin="round"
     >
       <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -585,13 +570,20 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
                         <option value="">Select a task...</option>
                         {dropdownOptions.map((option) => (
                           <option key={`${option.type}-${option.value}`} value={option.value}>
-                            {option.label}
+                            {option.label
+                              .split(' ')
+                              .map(
+                                (word) =>
+                                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                              )
+                              .join(' ')}
                           </option>
                         ))}
-                        {dropdownOptions.length === 0 && !isLoadingCategories && !isLoadingTasks && (
-                          <option value="General">General Task</option>
-                        )}
                       </select>
+                      <ChevronDown
+                        size={18}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none"
+                      />
                     </div>
                     {tasks.length > 1 && (
                       <button
@@ -632,6 +624,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">
                   Task Description <span className="text-red-500">*</span>
+                  <span className="text-xs text-gray-600 ml-2 font-normal">(Minimum 10 characters)</span>
                 </label>
                 <textarea
                   value={taskDescription}
@@ -656,10 +649,6 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
                   </p>
                 )}
                 <div className="mt-1 text-xs text-gray-400 flex justify-between">
-                  <span>Minimum 10 characters</span>
-                  <span className={taskDescription.length >= 10 ? 'text-green-500' : ''}>
-                    {taskDescription.length}/500
-                  </span>
                 </div>
               </div>
 
@@ -715,7 +704,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
                     max="24"
                     required
                     disabled={isSubmitting}
-                  />                 
+                  />
                 </div>
                 {showErrors && errors.hoursWorked && (
                   <p className="mt-2 text-sm text-red-600 flex items-center gap-1 animate-fadeIn">
@@ -802,11 +791,10 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
             <button
               type="button"
               onClick={() => setCurrentStep(prev => Math.max(0, prev - 1))}
-              className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-colors ${
-                currentStep === 0 || isSubmitting
-                  ? 'text-gray-400 cursor-not-allowed'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-              }`}
+              className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-colors ${currentStep === 0 || isSubmitting
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-gray-600 bg-gray-200/70  hover:text-gray-900 hover:bg-gray-200'
+                }`}
               disabled={currentStep === 0 || isSubmitting}
             >
               Previous
@@ -817,11 +805,10 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
                 type="button"
                 onClick={handleNextStep}
                 disabled={isNextDisabled()}
-                className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-colors shadow-lg ${
-                  isNextDisabled()
-                    ? 'bg-[#0088D0]/40 text-gray-100 cursor-not-allowed shadow-none'
-                    : 'bg-[#0088D0] text-white hover:bg-[#0066A0] shadow-[#0088D0]/30'
-                }`}
+                className={`px-6 py-2.5 text-sm font-medium rounded-lg transition-colors shadow-lg ${isNextDisabled()
+                  ? 'bg-[#0088D0]/40 text-gray-100 cursor-not-allowed shadow-none'
+                  : 'bg-[#0088D0] text-white hover:bg-[#0066A0] shadow-[#0088D0]/30'
+                  }`}
               >
                 Next Step
               </button>
