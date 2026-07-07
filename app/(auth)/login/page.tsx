@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Input from '@/components/ui/Input';
+import Image from 'next/image';
 
 interface FormErrors {
   email?: string;
@@ -132,10 +133,18 @@ export default function LoginPage() {
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#0088D0] mb-4">
-            <span className="text-white font-bold text-2xl">WR</span>
+          <div className="inline-flex items-center justify-center rounded-2xl mb-4">
+           <div className=" rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                       <Image
+                         src="/logo.png"
+                         alt="Logo"
+                         width={50}
+                         height={50}
+                         className="object-cover"
+                       />
+                     </div>
           </div>
-          <h1 className="text-2xl font-bold text-[#981E52]">Welcome Back</h1>
+          <h1 className="text-2xl font-bold text-[#981E52]">SRDB Daily Log</h1>
           <p className="text-gray-500 mt-1">Sign in to your account</p>
         </div>
 

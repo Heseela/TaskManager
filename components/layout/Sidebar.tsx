@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
+import Image from 'next/image';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -48,19 +49,24 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
   return (
     <aside
-      className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 ${
-        isOpen ? 'w-64' : 'w-20'
-      }`}
+      className={`fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 ${isOpen ? 'w-64' : 'w-20'
+        }`}
     >
       {/* Logo */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#0088D0] flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-lg">WR</span>
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              width={30}
+              height={30}
+              className="object-cover"
+            />
           </div>
           {isOpen && (
             <span className="text-lg font-bold text-[#981E52] whitespace-nowrap">
-              WorkReport
+              SRDB Work Log
             </span>
           )}
         </div>
@@ -77,16 +83,15 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         {links.map((link) => {
           const Icon = link.icon;
           const isActive = pathname === link.href;
-          
+
           return (
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${
-                isActive
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${isActive
                   ? 'bg-[#0088D0]/10 text-[#0088D0]'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-              }`}
+                }`}
             >
               <Icon size={20} className="flex-shrink-0" />
               {isOpen && (
