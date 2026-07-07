@@ -68,7 +68,7 @@ export interface Department {
 
 export interface SubUnit {
   ID: number;
-  DepID: number;
+  DepID: string;
   SubUnit: SubUnitType;
 }
 

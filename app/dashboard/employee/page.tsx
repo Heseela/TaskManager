@@ -114,7 +114,7 @@ export default function EmployeeDashboard() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-800">
-                Welcome back, <span className="text-[#0088D0]">{userName}</span>
+                Welcome back, <span className="text-[#981E52]">{userName}</span>
               </h1>
               <p className="text-gray-500 text-sm mt-0.5">
                 Here's what's happening with your work today

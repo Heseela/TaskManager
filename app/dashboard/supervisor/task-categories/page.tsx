@@ -9,6 +9,7 @@ import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { formatDateTime } from '@/global/dateUtils';
 import SearchInput from '@/components/ui/SearchInput';
+import { Department } from '@/types';
 
 interface Category {
     ID: number;
@@ -18,15 +19,9 @@ interface Category {
     CreatedAt: string;
 }
 
-interface Department {
-    ID: number;
-    DepName: string;
-    DepCode: string;
-}
-
 interface SubUnit {
     ID: number;
-    DepID: number;
+    DepID: string;
     SubUnit: string;
     DepName?: string;
     DepCode?: string;
@@ -39,7 +34,6 @@ export default function TaskCategoriesPage() {
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [subUnits, setSubUnits] = useState<SubUnit[]>([]);
-    const [filteredSubUnits, setFilteredSubUnits] = useState<SubUnit[]>([]);
     const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | ''>('');
     const [selectedSubUnitId, setSelectedSubUnitId] = useState<number | ''>('');
     const [categoryName, setCategoryName] = useState('');
@@ -51,6 +45,10 @@ export default function TaskCategoriesPage() {
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
+
+    const filteredSubUnits = subUnits.filter(
+        su => Number(su.DepID) === Number(selectedDepartmentId)
+    );
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -65,17 +63,6 @@ export default function TaskCategoriesPage() {
             fetchAllData();
         }
     }, [session]);
-
-    useEffect(() => {
-        if (selectedDepartmentId) {
-            const filtered = subUnits.filter(su => Number(su.DepID) === selectedDepartmentId);
-            setFilteredSubUnits(filtered);
-            setSelectedSubUnitId('');
-        } else {
-            setFilteredSubUnits([]);
-            setSelectedSubUnitId('');
-        }
-    }, [selectedDepartmentId, subUnits]);
 
     useEffect(() => {
         let filtered = categories;
@@ -161,13 +148,19 @@ export default function TaskCategoriesPage() {
     const openEditModal = (category: Category) => {
         setEditingCategory(category);
         setCategoryName(category.CategoryName);
-        const subunit = subUnits.find(su => su.ID === category.SubUnitID);
+
+        const subunit = subUnits.find(
+            su => Number(su.ID) === Number(category.SubUnitID)
+        );
+
         if (subunit) {
             setSelectedDepartmentId(Number(subunit.DepID));
-            setSelectedSubUnitId(category.SubUnitID);
-            const filtered = subUnits.filter(su => Number(su.DepID) === Number(subunit.DepID));
-            setFilteredSubUnits(filtered);
+            setSelectedSubUnitId(Number(subunit.ID));
+        } else {
+            setSelectedDepartmentId('');
+            setSelectedSubUnitId('');
         }
+
         setIsModalOpen(true);
     };
 
@@ -280,10 +273,9 @@ export default function TaskCategoriesPage() {
         setCategoryName('');
         setSelectedDepartmentId('');
         setSelectedSubUnitId('');
-        setFilteredSubUnits([]);
     };
 
-    const getDepartmentName = (depId: number) => {
+    const getDepartmentName = (depId: string | number) => {
         if (!depId) return 'Unknown';
         const dept = departments.find(d => d.ID === Number(depId));
         return dept?.DepName || 'Unknown';
@@ -410,7 +402,7 @@ export default function TaskCategoriesPage() {
                                             </td>
                                             <td className="py-3 px-4 text-gray-600">
                                                 {getDepartmentName(
-                                                    Number(subUnits.find(su => su.ID === category.SubUnitID)?.DepID) || 0
+                                                    subUnits.find(su => su.ID === category.SubUnitID)?.DepID || 0
                                                 )}
                                             </td>
                                             <td className="py-3 px-4 text-sm text-gray-500">
@@ -447,8 +439,8 @@ export default function TaskCategoriesPage() {
                                         onClick={goToPreviousPage}
                                         disabled={currentPage === 1}
                                         className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === 1
-                                                ? 'text-gray-300 cursor-not-allowed'
-                                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                                            ? 'text-gray-300 cursor-not-allowed'
+                                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
                                             }`}
                                     >
                                         <ChevronLeft size={16} />
@@ -460,8 +452,8 @@ export default function TaskCategoriesPage() {
                                                 key={page}
                                                 onClick={() => paginate(page)}
                                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${currentPage === page
-                                                        ? 'bg-[#0088D0] text-white'
-                                                        : 'text-gray-600 hover:bg-gray-100'
+                                                    ? 'bg-[#0088D0] text-white'
+                                                    : 'text-gray-600 hover:bg-gray-100'
                                                     }`}
                                             >
                                                 {page}
@@ -472,8 +464,8 @@ export default function TaskCategoriesPage() {
                                         onClick={goToNextPage}
                                         disabled={currentPage === totalPages}
                                         className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === totalPages
-                                                ? 'text-gray-300 cursor-not-allowed'
-                                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
+                                            ? 'text-gray-300 cursor-not-allowed'
+                                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
                                             }`}
                                     >
                                         Next
@@ -525,8 +517,13 @@ export default function TaskCategoriesPage() {
                                 <select
                                     value={selectedDepartmentId}
                                     onChange={(e) => {
-                                        setSelectedDepartmentId(Number(e.target.value));
-                                        setSelectedSubUnitId('');
+                                        const depId = Number(e.target.value);
+
+                                        setSelectedDepartmentId(depId);
+
+                                        if (!editingCategory) {
+                                            setSelectedSubUnitId('');
+                                        }
                                     }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
                                     required
@@ -549,11 +546,11 @@ export default function TaskCategoriesPage() {
                                     value={selectedSubUnitId}
                                     onChange={(e) => setSelectedSubUnitId(Number(e.target.value))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
-                                    required
                                     disabled={!selectedDepartmentId || !!editingCategory || isSubmitting}
                                 >
                                     <option value="">Select subunit</option>
-                                    {filteredSubUnits.map(su => (
+
+                                    {filteredSubUnits.map((su) => (
                                         <option key={su.ID} value={su.ID}>
                                             {su.SubUnit}
                                         </option>
@@ -606,7 +603,7 @@ export default function TaskCategoriesPage() {
                                             ? 'Update Category'
                                             : 'Add Category'}
                                 </Button>
-                                
+
                             </div>
                         </form>
                     </div>
