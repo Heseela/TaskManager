@@ -53,12 +53,12 @@ export async function getDepartment() {
 
 }
 
-export async function getSubUnits(depId: string) {
+export async function getSubUnits(depId: string | number) {
   const pool = await getDb();
 
   const result = await pool
     .request()
-    .input("depId", sql.Int, depId)
+     .input("depId", sql.Int, typeof depId === 'string' ? parseInt(depId) : depId)
     .query(`
       SELECT ID, SubUnit
       FROM UnitTable

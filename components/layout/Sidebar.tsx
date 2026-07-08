@@ -66,7 +66,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </div>
           {isOpen && (
             <span className="text-lg font-bold text-[#981E52] whitespace-nowrap">
-              SRDB Work Log
+              SRDB Daily Log
             </span>
           )}
         </div>

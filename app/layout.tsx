@@ -7,7 +7,7 @@ import { Toaster } from 'react-hot-toast'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'SRDB Work Report Dashboard',
+  title: 'SRDB Daily Log',
   description: 'Daily work reporting system for teams',
 }
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUser } from '@/lib/db';
 import { createUser, getDepartment, getSubUnits } from '@/lib/userDb';
+import bcrypt from "bcrypt";
 
 export async function GET(req: NextRequest) {
   try {
@@ -81,14 +82,17 @@ export async function POST(req: NextRequest) {
 
     const userId = Date.now().toString()
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     await createUser(
       name,
       email,
-      password,
+      hashedPassword,
       department,
       subUnit || '',
       role
     );
+
     return NextResponse.json(
       {
         message: 'User created successfully',

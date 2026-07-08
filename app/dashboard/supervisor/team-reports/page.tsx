@@ -22,7 +22,7 @@ export default function TeamReportsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(20);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -219,6 +219,26 @@ export default function TeamReportsPage() {
         </button>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+          <p className="text-2xl font-bold text-gray-800">{reports.length}</p>
+          <p className="text-sm text-gray-500">Total Reports</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+          <p className="text-2xl font-bold text-blue-600">
+            {new Set(reports.map(r => r.userId)).size}
+          </p>
+          <p className="text-sm text-gray-500">Employees</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+          <p className="text-2xl font-bold text-green-600">
+            {uniqueDepartments.length}
+          </p>
+          <p className="text-sm text-gray-500">Departments</p>
+        </div>
+      </div>
+
       {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -290,28 +310,6 @@ export default function TeamReportsPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
-          <p className="text-2xl font-bold text-gray-800">{filteredReports.length}</p>
-          <p className="text-sm text-gray-500">Total Reports</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
-          <p className="text-2xl font-bold text-blue-600">
-            {filteredReports.reduce((sum, r) => sum + r.hoursWorked, 0).toFixed(1)}h
-          </p>
-          <p className="text-sm text-gray-500">Total Hours</p>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
-          <p className="text-2xl font-bold text-green-600">
-            {filteredReports.length > 0
-              ? (filteredReports.reduce((sum, r) => sum + r.hoursWorked, 0) / filteredReports.length).toFixed(1)
-              : 0}h
-          </p>
-          <p className="text-sm text-gray-500">Avg Hours/Report</p>
-        </div>
-      </div>
-
       {/* Reports Table */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
@@ -330,6 +328,9 @@ export default function TeamReportsPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
+                    <th className="text-left py-6 px-6 text-sm font-medium text-gray-500 w-16">
+                      SN
+                    </th>
                     <th className="text-left py-6 px-6 text-sm font-medium text-gray-500">
                       Employee
                     </th>
@@ -357,11 +358,14 @@ export default function TeamReportsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {currentItems.map((report) => (
+                  {currentItems.map((report, index) => (
                     <tr
                       key={report.id}
                       className="border-b border-gray-100 hover:bg-blue-50/50 transition-colors"
                     >
+                      <td className="py-3 px-6 r">
+                        {indexOfFirstItem + index + 1}
+                      </td>
                       <td className="py-3 px-6 text-gray-600">
                         <span className="font-medium text-gray-800 capitalize">
                           {report.userName}
@@ -375,8 +379,7 @@ export default function TeamReportsPage() {
                       </td>
                       <td className="py-3 px-6 text-gray-600">
                         <span className="inline-flex items-center gap-1 text-sm text-gray-700">
-                          <span className="font-semibold">{report.hoursWorked}</span>
-                          <span className="text-xs text-gray-400">hrs</span>
+                          <span className="font-medium">{report.hoursWorked} hrs</span>
                         </span>
                       </td>
                       <td className="py-3 px-6 text-gray-600">
@@ -534,12 +537,6 @@ export default function TeamReportsPage() {
                   <p className="font-medium text-gray-800 mt-1 capitalize">
                     {selectedReport.subUnit || 'N/A'}
                   </p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Status</p>
-                  <div className="mt-1">
-                    {getStatusBadge(selectedReport.status)}
-                  </div>
                 </div>
               </div>
 

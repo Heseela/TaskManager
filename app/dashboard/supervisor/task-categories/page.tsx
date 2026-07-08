@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { Plus, Edit, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Edit, X, ChevronLeft, ChevronRight, Filter, Building, Users } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
 import { formatDateTime } from '@/global/dateUtils';
@@ -24,7 +24,7 @@ interface SubUnit {
     DepID: string;
     SubUnit: string;
     DepName?: string;
-    DepCode?: string;
+    DepCode?: string;   
 }
 
 export default function TaskCategoriesPage() {
@@ -34,20 +34,29 @@ export default function TaskCategoriesPage() {
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [subUnits, setSubUnits] = useState<SubUnit[]>([]);
+    
     const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | ''>('');
     const [selectedSubUnitId, setSelectedSubUnitId] = useState<number | ''>('');
-    const [categoryName, setCategoryName] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    
+    const [categoryName, setCategoryName] = useState('');
+    const [formDepartmentId, setFormDepartmentId] = useState<number | ''>('');
+    const [formSubUnitId, setFormSubUnitId] = useState<number | ''>('');
+    
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<Category | null>(null);
 
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(10);
+    const [itemsPerPage] = useState(20);
 
     const filteredSubUnits = subUnits.filter(
         su => Number(su.DepID) === Number(selectedDepartmentId)
+    );
+
+    const formFilteredSubUnits = subUnits.filter(
+        su => Number(su.DepID) === Number(formDepartmentId)
     );
 
     useEffect(() => {
@@ -65,7 +74,14 @@ export default function TaskCategoriesPage() {
     }, [session]);
 
     useEffect(() => {
-        let filtered = categories;
+        let filtered = [...categories];
+
+        if (selectedDepartmentId) {
+            const subunitIdsForDepartment = subUnits
+                .filter(su => Number(su.DepID) === Number(selectedDepartmentId))
+                .map(su => su.ID);
+            filtered = filtered.filter(c => subunitIdsForDepartment.includes(c.SubUnitID));
+        }
 
         if (selectedSubUnitId) {
             filtered = filtered.filter(c => c.SubUnitID === selectedSubUnitId);
@@ -81,7 +97,11 @@ export default function TaskCategoriesPage() {
 
         setFilteredCategories(filtered);
         setCurrentPage(1);
-    }, [categories, selectedSubUnitId, searchTerm]);
+    }, [categories, selectedDepartmentId, selectedSubUnitId, searchTerm, subUnits]);
+
+    useEffect(() => {
+        setSelectedSubUnitId('');
+    }, [selectedDepartmentId]);
 
     const fetchAllData = async () => {
         setIsLoading(true);
@@ -154,11 +174,11 @@ export default function TaskCategoriesPage() {
         );
 
         if (subunit) {
-            setSelectedDepartmentId(Number(subunit.DepID));
-            setSelectedSubUnitId(Number(subunit.ID));
+            setFormDepartmentId(Number(subunit.DepID));
+            setFormSubUnitId(Number(subunit.ID));
         } else {
-            setSelectedDepartmentId('');
-            setSelectedSubUnitId('');
+            setFormDepartmentId('');
+            setFormSubUnitId('');
         }
 
         setIsModalOpen(true);
@@ -173,12 +193,12 @@ export default function TaskCategoriesPage() {
     const handleAddCategory = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!selectedDepartmentId) {
+        if (!formDepartmentId) {
             toast.error('Please select a department');
             return;
         }
 
-        if (!selectedSubUnitId) {
+        if (!formSubUnitId) {
             toast.error('Please select a subunit');
             return;
         }
@@ -198,7 +218,7 @@ export default function TaskCategoriesPage() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    subUnitId: selectedSubUnitId,
+                    subUnitId: formSubUnitId,
                     categoryName: categoryName.trim(),
                 }),
             });
@@ -271,14 +291,25 @@ export default function TaskCategoriesPage() {
 
     const resetForm = () => {
         setCategoryName('');
-        setSelectedDepartmentId('');
-        setSelectedSubUnitId('');
+        setFormDepartmentId('');
+        setFormSubUnitId('');
     };
 
     const getDepartmentName = (depId: string | number) => {
         if (!depId) return 'Unknown';
         const dept = departments.find(d => d.ID === Number(depId));
         return dept?.DepName || 'Unknown';
+    };
+
+    const getDepartmentForCategory = (category: Category) => {
+        const subunit = subUnits.find(su => su.ID === category.SubUnitID);
+        return subunit ? getDepartmentName(subunit.DepID) : 'Unknown';
+    };
+
+    const clearAllFilters = () => {
+        setSelectedDepartmentId('');
+        setSelectedSubUnitId('');
+        setSearchTerm('');
     };
 
     const indexOfLastItem = currentPage * itemsPerPage;
@@ -329,9 +360,33 @@ export default function TaskCategoriesPage() {
                 </Button>
             </div>
 
-            <div className="flex flex-wrap gap-4">
-                <div className="flex-1 max-w-[500px]">
-                    <div className="relative">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+                    <p className="text-2xl font-bold text-gray-800">{categories.length}</p>
+                    <p className="text-sm text-gray-500">Total Categories</p>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+                    <p className="text-2xl font-bold text-blue-600">
+                        {new Set(categories.map(c => c.SubUnitID)).size}
+                    </p>
+                    <p className="text-sm text-gray-500">Sub-Units</p>
+                </div>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+                    <p className="text-2xl font-bold text-green-600">
+                        {new Set(categories.map(c => {
+                            const subunit = subUnits.find(su => su.ID === c.SubUnitID);
+                            return subunit?.DepID;
+                        })).size}
+                    </p>
+                    <p className="text-sm text-gray-500">Departments</p>
+                </div>
+            </div>
+
+            {/* Search & Filter */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex-1 min-w-[200px]">
                         <SearchInput
                             value={searchTerm}
                             onChange={setSearchTerm}
@@ -341,19 +396,102 @@ export default function TaskCategoriesPage() {
                             }}
                         />
                     </div>
+                    
+                    <div className="flex items-center gap-2">
+                        <Filter size={18} className="text-gray-400" />
+                        <select
+                            value={selectedDepartmentId}
+                            onChange={(e) => setSelectedDepartmentId(Number(e.target.value) || '')}
+                            className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent transition-all text-sm bg-white"
+                        >
+                            <option value="">All Departments</option>
+                            {departments.map((dept) => (
+                                <option key={dept.ID} value={dept.ID}>
+                                    {dept.DepName}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Building size={18} className="text-gray-400" />
+                        <select
+                            value={selectedSubUnitId}
+                            onChange={(e) => setSelectedSubUnitId(Number(e.target.value) || '')}
+                            className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent transition-all text-sm bg-white"
+                            disabled={!selectedDepartmentId}
+                        >
+                            <option value="">All Sub-Units</option>
+                            {filteredSubUnits.map((unit) => (
+                                <option key={unit.ID} value={unit.ID}>
+                                    {unit.SubUnit}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <span className="text-sm text-gray-500 ml-auto bg-gray-50 px-3 py-1 rounded-full">
+                        {filteredCategories.length} category{filteredCategories.length !== 1 ? 's' : ''}
+                    </span>
                 </div>
+
+                {/* Active Filters Display */}
+                {(selectedDepartmentId || selectedSubUnitId || searchTerm) && (
+                    <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-gray-500">Active filters:</span>
+                        {selectedDepartmentId && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs">
+                                Dept: {departments.find(d => d.ID === selectedDepartmentId)?.DepName}
+                                <button
+                                    onClick={() => setSelectedDepartmentId('')}
+                                    className="hover:text-blue-900 ml-1"
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        )}
+                        {selectedSubUnitId && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-full text-xs">
+                                Sub-Unit: {subUnits.find(s => s.ID === selectedSubUnitId)?.SubUnit}
+                                <button
+                                    onClick={() => setSelectedSubUnitId('')}
+                                    className="hover:text-green-900 ml-1"
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        )}
+                        {searchTerm && (
+                            <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-50 text-gray-700 rounded-full text-xs">
+                                Search: {searchTerm}
+                                <button
+                                    onClick={() => setSearchTerm('')}
+                                    className="hover:text-gray-900 ml-1"
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        )}
+                        <button
+                            onClick={clearAllFilters}
+                            className="text-xs text-red-600 hover:text-red-700 hover:underline"
+                        >
+                            Clear all
+                        </button>
+                    </div>
+                )}
             </div>
 
             <Card>
                 {filteredCategories.length === 0 ? (
                     <div className="text-center py-12">
                         <p className="text-gray-500">No categories found</p>
-                        {searchTerm && (
+                        {(searchTerm || selectedDepartmentId || selectedSubUnitId) && (
                             <p className="text-sm text-gray-400 mt-1">
-                                Try adjusting your search or filter
+                                Try adjusting your search or filters
                             </p>
                         )}
-                        {!searchTerm && !selectedSubUnitId && (
+                        {!searchTerm && !selectedDepartmentId && !selectedSubUnitId && (
                             <Button
                                 variant="secondary"
                                 onClick={openAddModal}
@@ -369,6 +507,9 @@ export default function TaskCategoriesPage() {
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-gray-200">
+                                        <th className="text-left py-3 px-4 text-sm font-medium text-gray-500 w-16">
+                                            SN
+                                        </th>
                                         <th className="text-left py-3 px-4 text-sm font-medium text-gray-500">
                                             Category Name
                                         </th>
@@ -387,11 +528,14 @@ export default function TaskCategoriesPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {currentItems.map((category) => (
+                                    {currentItems.map((category, index) => (
                                         <tr
                                             key={category.ID}
                                             className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                                         >
+                                            <td className="py-3 px-4">
+                                                {indexOfFirstItem + index + 1}
+                                            </td>
                                             <td className="py-3 px-4">
                                                 <span className="font-medium text-gray-800">
                                                     {category.CategoryName}
@@ -401,9 +545,7 @@ export default function TaskCategoriesPage() {
                                                 {category.SubUnitName}
                                             </td>
                                             <td className="py-3 px-4 text-gray-600">
-                                                {getDepartmentName(
-                                                    subUnits.find(su => su.ID === category.SubUnitID)?.DepID || 0
-                                                )}
+                                                {getDepartmentForCategory(category)}
                                             </td>
                                             <td className="py-3 px-4 text-sm text-gray-500">
                                                 {formatDateTime(category.CreatedAt)}
@@ -490,6 +632,7 @@ export default function TaskCategoriesPage() {
                 )}
             </div>
 
+            {/* Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
@@ -515,14 +658,12 @@ export default function TaskCategoriesPage() {
                                     Department <span className="text-red-500">*</span>
                                 </label>
                                 <select
-                                    value={selectedDepartmentId}
+                                    value={formDepartmentId}
                                     onChange={(e) => {
                                         const depId = Number(e.target.value);
-
-                                        setSelectedDepartmentId(depId);
-
+                                        setFormDepartmentId(depId);
                                         if (!editingCategory) {
-                                            setSelectedSubUnitId('');
+                                            setFormSubUnitId('');
                                         }
                                     }}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
@@ -543,23 +684,22 @@ export default function TaskCategoriesPage() {
                                     Sub-Unit <span className="text-red-500">*</span>
                                 </label>
                                 <select
-                                    value={selectedSubUnitId}
-                                    onChange={(e) => setSelectedSubUnitId(Number(e.target.value))}
+                                    value={formSubUnitId}
+                                    onChange={(e) => setFormSubUnitId(Number(e.target.value))}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
-                                    disabled={!selectedDepartmentId || !!editingCategory || isSubmitting}
+                                    disabled={!formDepartmentId || !!editingCategory || isSubmitting}
                                 >
                                     <option value="">Select subunit</option>
-
-                                    {filteredSubUnits.map((su) => (
+                                    {formFilteredSubUnits.map((su) => (
                                         <option key={su.ID} value={su.ID}>
                                             {su.SubUnit}
                                         </option>
                                     ))}
                                 </select>
-                                {!selectedDepartmentId && (
+                                {!formDepartmentId && (
                                     <p className="mt-1 text-xs text-gray-500">Select a department first</p>
                                 )}
-                                {selectedDepartmentId && filteredSubUnits.length === 0 && !isSubmitting && (
+                                {formDepartmentId && formFilteredSubUnits.length === 0 && !isSubmitting && (
                                     <p className="mt-1 text-xs text-yellow-600">
                                         No subunits found for this department
                                     </p>
@@ -603,7 +743,6 @@ export default function TaskCategoriesPage() {
                                             ? 'Update Category'
                                             : 'Add Category'}
                                 </Button>
-
                             </div>
                         </form>
                     </div>

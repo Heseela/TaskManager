@@ -2,6 +2,7 @@ import { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { db } from '@/lib/datasource';
 import { DepartmentType, SubUnitType } from '@/types';
+import bcrypt from "bcrypt";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,32 +19,40 @@ export const authOptions: NextAuthOptions = {
 
         const user = await db.getUser(credentials.email);
 
-        if (user && user.password === credentials.password) {
-           const authUser = {
-              id: Number(user.id),
-              email: user.email,
-              name: user.name,
-              role: user.role as 'employee' | 'supervisor',
-              department: user.department as DepartmentType,
-              subUnit: user.subUnit as SubUnitType | undefined,
-            };
-            return authUser;
+        if (!user) {
+          return null;
         }
-        
-        return null;
-      },
+
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
+
+        if (!isPasswordValid) {
+          return null;
+        }
+
+        return {
+          id: Number(user.id),
+          email: user.email,
+          name: user.name,
+          role: user.role as 'employee' | 'supervisor',
+          department: user.department as DepartmentType,
+          subUnit: user.subUnit as SubUnitType | undefined,
+        };
+      }
     }),
   ],
-  
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-          token.id = user.id as number;
-       token.role = user.role as 'employee' | 'supervisor';
-       token.name = user.name;
-       token.email = user.email;
-       token.department = user.department as DepartmentType;
-       token.subUnit = user.subUnit as SubUnitType | undefined;
+        token.id = user.id as number;
+        token.role = user.role as 'employee' | 'supervisor';
+        token.name = user.name;
+        token.email = user.email;
+        token.department = user.department as DepartmentType;
+        token.subUnit = user.subUnit as SubUnitType | undefined;
       }
       return token;
     },
@@ -59,7 +68,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  
+
   pages: {
     signIn: '/login',
   },

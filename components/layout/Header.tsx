@@ -36,13 +36,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="flex items-center justify-between px-4 sm:px-6 h-16">
-        <button
-          onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 lg:hidden transition-colors"
-          aria-label="Toggle sidebar"
-        >
-          <Menu size={24} />
-        </button>
+       
 
         <div className="flex-1 hidden lg:block" />
 

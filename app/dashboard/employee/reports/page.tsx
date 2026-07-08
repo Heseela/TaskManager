@@ -17,7 +17,7 @@ export default function EmployeeReportsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10);
+  const [itemsPerPage] = useState(20);
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -74,6 +74,11 @@ export default function EmployeeReportsPage() {
     }
   };
 
+  // Stats
+  const totalReports = reports.length;
+  const totalHours = reports.reduce((sum, report) => sum + (report.hoursWorked || 0), 0);
+  const uniqueDates = new Set(reports.map(r => r.date)).size;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -90,8 +95,24 @@ export default function EmployeeReportsPage() {
         </Link>
       </div>
 
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+          <p className="text-2xl font-bold text-gray-800">{totalReports}</p>
+          <p className="text-sm text-gray-500">Total Reports</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+          <p className="text-2xl font-bold text-blue-600">{totalHours}</p>
+          <p className="text-sm text-gray-500">Total Hours</p>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 text-center hover:shadow-md transition-all duration-200">
+          <p className="text-2xl font-bold text-green-600">{uniqueDates}</p>
+          <p className="text-sm text-gray-500">Active Days</p>
+        </div>
+      </div>
+
       {/* Filter */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 ">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="flex items-center gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Calendar size={18} className="text-gray-400" /> Date:
@@ -142,6 +163,9 @@ export default function EmployeeReportsPage() {
               <table className="w-full">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">
+                      SN
+                    </th>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Task Title
                     </th>
@@ -168,6 +192,9 @@ export default function EmployeeReportsPage() {
                       key={report.id}
                       className="hover:bg-blue-50/50 transition-colors duration-150"
                     >
+                      <td className="px-4 py-3 ">
+                        {indexOfFirstItem + index + 1}
+                      </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
                           <CheckCircle size={16} className="text-[#0088D0] flex-shrink-0" />
@@ -322,25 +349,6 @@ export default function EmployeeReportsPage() {
                     {selectedReport.hoursWorked}h
                   </p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Status</p>
-                  <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mt-1 ${selectedReport.status === 'submitted' || selectedReport.status === 'pending'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-red-100 text-red-700'
-                    }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${selectedReport.status === 'submitted' || selectedReport.status === 'pending'
-                      ? 'bg-green-500'
-                      : 'bg-red-500'
-                      }`}></span>
-                    {selectedReport.status.charAt(0).toUpperCase() + selectedReport.status.slice(1)}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Report Date</p>
-                  <p className="font-medium text-gray-800 mt-1">
-                    {format(new Date(selectedReport.date), 'MMM d, yyyy')}
-                  </p>
-                </div>
               </div>
 
               {/* Tasks Section */}
@@ -376,8 +384,8 @@ export default function EmployeeReportsPage() {
                 </div>
               </div>
 
-              {/* Add Previous Task Description */}
-                {selectedReport.previousTaskDescription && (
+              {/* Previous Task Description */}
+              {selectedReport.previousTaskDescription && (
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-2 flex items-center gap-2">
                     <span className="w-1 h-5 bg-teal-500 rounded-full"></span>
@@ -423,6 +431,7 @@ export default function EmployeeReportsPage() {
                   </div>
                 </div>
               )}
+              
               {/* File Attachments Section */}
               {selectedReport.fileAttachments && selectedReport.fileAttachments.length > 0 && (
                 <div>
@@ -478,8 +487,6 @@ export default function EmployeeReportsPage() {
                   </div>
                 </div>
               )}
-
-
             </div>
 
             <div className="sticky bottom-0 bg-white rounded-b-2xl border-t border-gray-200 px-6 py-4">
