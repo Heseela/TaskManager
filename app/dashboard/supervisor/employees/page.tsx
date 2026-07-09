@@ -120,7 +120,7 @@ export default function EmployeesPage() {
       {/* Search & Filter */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-50">
             <SearchInput
               value={searchTerm}
               onChange={setSearchTerm}
@@ -226,7 +226,7 @@ export default function EmployeesPage() {
           {filteredEmployees.map((employee) => (
             <div key={employee.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:scale-[1.02]">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0088D0] to-[#0077b8] flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-full bg-linear-to-br from-[#0088D0] to-[#0077b8] flex items-center justify-center shrink-0">
                   <span className="text-white font-bold text-lg">
                     {employee.name.charAt(0).toUpperCase()}
                   </span>
@@ -236,11 +236,11 @@ export default function EmployeesPage() {
                     {employee.name}
                   </h3>
                   <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
-                    <Mail size={14} className="flex-shrink-0" />
+                    <Mail size={14} className="shrink-0" />
                     <span className="truncate">{employee.email}</span>
                   </div>
                   <div className="flex items-center gap-1 text-sm text-gray-500">
-                    <Building size={14} className="flex-shrink-0" />
+                    <Building size={14} className="shrink-0" />
                     <span className="capitalize">{employee.subUnit || 'N/A'}</span>
                   </div>
                 </div>

@@ -37,7 +37,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
 
   const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
 
-  // Fetch categories when employee is selected
   useEffect(() => {
     const fetchCategories = async () => {
       if (!assignedTo) {
@@ -213,7 +212,6 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
     return touched[field] || Object.keys(errors).length > 0;
   };
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setAssignedTo('');

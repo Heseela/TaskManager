@@ -345,7 +345,7 @@ export default function TaskCategoriesModal({
         </div>
 
         <div className="flex flex-wrap gap-4 mb-4">
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-50">
             <input
               type="text"
               value={searchTerm}

@@ -378,7 +378,13 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
       return;
     }
 
-    const selectedTasks = tasks.filter(t => t.trim());
+    const selectedTasks = tasks
+      .filter(t => t.trim())
+      .map(task =>
+        assignedTasks.some(a => a.title === task)
+          ? `${task} (assigned)`
+          : task
+      );
 
     setIsSubmitting(true);
 
@@ -527,7 +533,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
 
   return (
     <Card className="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border-0">
-      <div className="bg-gradient-to-r from-[#0088D0] to-[#0066A0] px-6 py-4">
+      <div className="bg-linear-to-r from-[#0088D0] to-[#0066A0] px-6 py-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           <FileText size={24} />
           Today's Work Report
@@ -540,7 +546,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
       <div className="p-6">
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg flex items-start gap-2 text-sm">
-            <AlertCircle size={18} className="mt-0.5 flex-shrink-0" />
+            <AlertCircle size={18} className="mt-0.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}

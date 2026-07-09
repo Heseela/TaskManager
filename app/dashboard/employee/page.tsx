@@ -107,7 +107,7 @@ export default function EmployeeDashboard() {
       <div className=" py-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-full bg-[#0088D0]/10 flex items-center justify-center flex-shrink-0">
+            <div className="w-14 h-14 rounded-full bg-[#0088D0]/10 flex items-center justify-center shrink-0">
               <span className="text-2xl font-bold text-[#0088D0]">
                 {userName.charAt(0)}
               </span>
@@ -124,7 +124,7 @@ export default function EmployeeDashboard() {
           
           <Link
             href="/dashboard/employee/reports/new"
-            className="px-5 py-2.5 bg-[#0088D0] text-white rounded-lg hover:bg-[#0077b8] transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md flex-shrink-0"
+            className="px-5 py-2.5 bg-[#0088D0] text-white rounded-lg hover:bg-[#0077b8] transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md shrink-0"
           >
             <FileText size={18} />
             New Report
@@ -159,25 +159,25 @@ export default function EmployeeDashboard() {
           icon={FileText}
           label="Total Reports"
           value={stats.totalReports}
-          bgColor="bg-gradient-to-br from-blue-500 to-blue-600"
+          bgColor="bg-linear-to-br from-blue-500 to-blue-600"
         />
         <StatCard
           icon={Clock}
           label="Pending Tasks"
           value={stats.pendingTasks}
-          bgColor="bg-gradient-to-br from-yellow-500 to-yellow-600"
+          bgColor="bg-linear-to-br from-yellow-500 to-yellow-600"
         />
         <StatCard
           icon={CheckSquare}
           label="Completed Tasks"
           value={stats.completedTasks}
-          bgColor="bg-gradient-to-br from-green-500 to-green-600"
+          bgColor="bg-linear-to-br from-green-500 to-green-600"
         />
         <StatCard
           icon={TrendingUp}
           label="Average Hours Worked"
           value={`${stats.avgHours}h`}
-          bgColor="bg-gradient-to-br from-purple-500 to-purple-600"
+          bgColor="bg-linear-to-br from-purple-500 to-purple-600"
         />
       </div>
 
@@ -241,7 +241,7 @@ export default function EmployeeDashboard() {
                   className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-[#0088D0]/10 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-[#0088D0]/10 flex items-center justify-center shrink-0">
                       <FileText size={14} className="text-[#0088D0]" />
                     </div>
                     <div>

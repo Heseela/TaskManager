@@ -129,12 +129,12 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center rounded-2xl mb-4">
-           <div className=" rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+           <div className=" rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
                        <Image
                          src="/logo.png"
                          alt="Logo"
@@ -150,7 +150,7 @@ export default function LoginPage() {
 
         {success && (
           <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-700 text-sm rounded-lg flex items-center gap-2">
-            <CheckCircle size={16} className="flex-shrink-0" />
+            <CheckCircle size={16} className="shrink-0" />
             {success}
           </div>
         )}
@@ -223,7 +223,7 @@ export default function LoginPage() {
           {/* General Error */}
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg flex items-center gap-2">
-              <AlertCircle size={16} className="flex-shrink-0" />
+              <AlertCircle size={16} className="shrink-0" />
               {error}
             </div>
           )}

@@ -386,7 +386,7 @@ export default function TaskCategoriesPage() {
             {/* Search & Filter */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
                 <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex-1 min-w-[200px]">
+                    <div className="flex-1 min-w-50">
                         <SearchInput
                             value={searchTerm}
                             onChange={setSearchTerm}

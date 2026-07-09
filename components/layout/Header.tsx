@@ -1,6 +1,5 @@
 'use client';
 
-import { Menu } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useState, useRef, useEffect } from 'react';
 import LogoutButton from '../auth/LogoutButton';
@@ -45,7 +44,7 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
           <div className="relative" ref={dropdownRef}>
             <div className="flex items-center gap-2 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
             >
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0088D0] to-[#0077b8] flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#0088D0] to-[#0077b8] flex items-center justify-center shrink-0">
                 <span className="text-white font-semibold text-sm">
                   {getUserInitials()}
                 </span>

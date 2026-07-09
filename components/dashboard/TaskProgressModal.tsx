@@ -106,7 +106,7 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+                        className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors shrink-0"
                     >
                         <X size={20} className="text-gray-500" />
                     </button>
@@ -135,14 +135,14 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
                         {/* Assignment Details */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
                             <div className="flex items-start gap-2">
-                                <User size={16} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                                <User size={16} className="text-gray-400 mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-gray-500">Assigned By</p>
                                     <p className="font-medium text-gray-800 capitalize">{task.assignedByName}</p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-2">
-                                <User size={16} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                                <User size={16} className="text-gray-400 mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-gray-500">Assigned To</p>
                                     <p className="font-medium text-gray-800 capitalize">{task.assignedToName}</p>
@@ -150,7 +150,7 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
                             </div>
                             {task.dueDate && (
                                 <div className="flex items-start gap-2">
-                                    <Calendar size={16} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                                    <Calendar size={16} className="text-gray-400 mt-0.5 shrink-0" />
                                     <div>
                                         <p className="text-xs text-gray-500">Due Date</p>
                                         <p className="font-medium text-gray-800">
@@ -160,7 +160,7 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
                                 </div>
                             )}
                             <div className="flex items-start gap-2">
-                                <Clock size={16} className="text-gray-400 mt-0.5 flex-shrink-0" />
+                                <Clock size={16} className="text-gray-400 mt-0.5 shrink-0" />
                                 <div>
                                     <p className="text-xs text-gray-500">Status</p>
                                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(task.status)}`}>
@@ -197,7 +197,7 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
                                     <p className="text-xs text-gray-400 mt-1">Reports will appear here once they include this task</p>
                                 </div>
                             ) : (
-                                <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1">
+                                <div className="space-y-3 max-h-100 overflow-y-auto pr-1">
                                     {taskReports.map((report) => {
                                         const isExpanded = expandedReports.has(report.id);
                                         const hasDescription = report.taskDescription || report.previousTaskDescription;

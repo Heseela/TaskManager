@@ -143,11 +143,11 @@ export default function FileUpload({
                                 <span className="text-sm text-gray-700 truncate flex-1">
                                     {file.name}
                                 </span>
-                                <CheckCircle size={14} className="text-green-500 flex-shrink-0" />
+                                <CheckCircle size={14} className="text-green-500 shrink-0" />
                             </div>
                             <button
                                 onClick={() => onFileRemoved(index)}
-                                className="p-0.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors flex-shrink-0 ml-2"
+                                className="p-0.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors shrink-0 ml-2"
                                 title="Remove file"
                             >
                                 <X size={14} />

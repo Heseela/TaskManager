@@ -34,7 +34,8 @@ export default function TeamReportsPage() {
 
         const reportsData = await reportsRes.json();
         const employeesData = await employeesRes.json();
-
+console.log("Reports:", reportsData);
+console.log("Employees:", employeesData);
         const reportsWithDepartment = reportsData.map((report: any) => {
           const employee = employeesData.find((emp: any) => emp.id === report.userId);
           return {
@@ -243,7 +244,7 @@ export default function TeamReportsPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+            <label className="flex text-sm font-medium text-gray-700 mb-1.5 items-center gap-2">
               <Calendar size={16} className="text-gray-400" />
               Date
             </label>
@@ -255,7 +256,7 @@ export default function TeamReportsPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
               <User size={16} className="text-gray-400" />
               Employee
             </label>
@@ -276,7 +277,7 @@ export default function TeamReportsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
               <Building size={16} className="text-gray-400" />
               Department
             </label>
@@ -292,7 +293,7 @@ export default function TeamReportsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
               <Filter size={16} className="text-gray-400" />
               Sub-Unit
             </label>
@@ -347,10 +348,10 @@ export default function TeamReportsPage() {
                       Sub-Unit
                     </th>
                     <th className="text-left py-6 px-6 text-sm font-medium text-gray-500">
-                      Date
+                      Attachments
                     </th>
                     <th className="text-left py-6 px-6 text-sm font-medium text-gray-500">
-                      Attachments
+                      Date
                     </th>
                     <th className="text-center py-6 px-6 text-sm font-medium text-gray-500">
                       Action
@@ -372,14 +373,15 @@ export default function TeamReportsPage() {
                         </span>
                       </td>
                       <td className="py-3 px-6 text-gray-600">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
-                          <CheckCircle size={12} />
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1  rounded-full text-xs font-medium">
+                        
                           {report.tasks.length}
                         </span>
                       </td>
-                      <td className="py-3 px-6 text-gray-600">
-                        <span className="inline-flex items-center gap-1 text-sm text-gray-700">
-                          <span className="font-medium">{report.hoursWorked} hrs</span>
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                          <Clock size={14} />
+                          {report.hoursWorked}h
                         </span>
                       </td>
                       <td className="py-3 px-6 text-gray-600">
@@ -392,33 +394,35 @@ export default function TeamReportsPage() {
                           {report.subUnit || 'N/A'}
                         </span>
                       </td>
-                      <td className="py-3 px-6 text-gray-600">
-                        <div className="flex items-center justify-start gap-1.5">
-                          <Calendar size={13} className="text-gray-400" />
-                          <span className="text-sm text-gray-700">
-                            {format(new Date(report.date), 'MMM d, yyyy')}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="py-3 px-6 text-gray-600">
+                      <td className="px-4 py-3 text-center">
                         {report.fileAttachments && report.fileAttachments.length > 0 ? (
-                          <div className="flex items-center gap-1">
-                            <Paperclip size={14} className="text-gray-400" />
-                            <span className="text-xs font-medium text-gray-600">
+                          <div className="flex items-center justify-center gap-1">
+                            <File size={14} className="text-purple-500" />
+                            <span className="text-xs text-gray-500">
                               {report.fileAttachments.length}
                             </span>
                           </div>
                         ) : (
-                          <span className="text-xs text-gray-400">—</span>
+                          <span className="text-xs text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="px-6 py-3 text-center whitespace-nowrap">
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
+                        <div className="flex items-center justify-center gap-1.5">
+                          <Calendar size={14} className="text-gray-400" />
+                          <span className="text-sm text-gray-700">
+                            {format(new Date(report.submittedAt || report.date), 'MMM d, yyyy')}
+                          </span>
+                        </div>
+                      </td>
+                      
+                      
+                      <td className="px-4 py-3 text-center whitespace-nowrap">
                         <button
                           onClick={() => viewReport(report)}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[#0088D0] hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-105"
                         >
-                          <Eye size={15} />
-                          <span className="text-xs font-medium">View</span>
+                          <Eye size={16} />
+                          <span className="text-sm font-medium">View</span>
                         </button>
                       </td>
                     </tr>
@@ -503,7 +507,7 @@ export default function TeamReportsPage() {
  
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Header Info */}
-              <div className="grid grid-cols-2 gap-4 bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 rounded-xl border border-gray-100">
+              <div className="grid grid-cols-2 gap-4 bg-linear-to-br from-gray-50 to-blue-50/30 p-4 rounded-xl border border-gray-100">
                 <div>
                   <p className="text-sm text-gray-500 font-medium">Date</p>
                   <p className="font-medium text-gray-800 mt-1 flex items-center gap-2">
@@ -544,7 +548,7 @@ export default function TeamReportsPage() {
                   {selectedReport.tasks && selectedReport.tasks.length > 0 ? (
                     selectedReport.tasks.map((task, i) => (
                       <div key={i} className="flex items-start gap-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
-                        <CheckCircle size={18} className="text-[#0088D0] mt-0.5 flex-shrink-0" />
+                        <CheckCircle size={18} className="text-[#0088D0] mt-0.5 shrink-0" />
                         <span className="text-gray-700">{task}</span>
                       </div>
                     ))

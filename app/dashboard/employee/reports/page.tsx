@@ -197,7 +197,7 @@ export default function EmployeeReportsPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <CheckCircle size={16} className="text-[#0088D0] flex-shrink-0" />
+                          <CheckCircle size={16} className="text-[#0088D0] shrink-0" />
                           <span className="font-medium text-gray-800">
                             {report.tasks && report.tasks.length > 0
                               ? report.tasks[0]
@@ -334,7 +334,7 @@ export default function EmployeeReportsPage() {
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Header Info */}
-              <div className="grid grid-cols-2 gap-4 bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 rounded-xl border border-gray-100">
+              <div className="grid grid-cols-2 gap-4 bg-linear-to-br from-gray-50 to-blue-50/30 p-4 rounded-xl border border-gray-100">
                 <div>
                   <p className="text-sm text-gray-500 font-medium">Submitted Date</p>
                   <p className="font-medium text-gray-800 mt-1 flex items-center gap-2">
@@ -361,7 +361,7 @@ export default function EmployeeReportsPage() {
                   {selectedReport.tasks && selectedReport.tasks.length > 0 ? (
                     selectedReport.tasks.map((task, i) => (
                       <div key={i} className="flex items-start gap-3 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
-                        <CheckCircle size={18} className="text-[#0088D0] mt-0.5 flex-shrink-0" />
+                        <CheckCircle size={18} className="text-[#0088D0] mt-0.5 shrink-0" />
                         <span className="text-gray-700">{task}</span>
                       </div>
                     ))

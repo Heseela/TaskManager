@@ -55,7 +55,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
             <Image
               src="/logo.png"
               alt="Logo"
@@ -88,12 +88,12 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <Link
               key={link.href}
               href={link.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative ${isActive
+              className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group relative ${isActive
                   ? 'bg-[#0088D0]/10 text-[#0088D0]'
                   : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
             >
-              <Icon size={20} className="flex-shrink-0" />
+              <Icon size={20} className="shrink-0" />
               {isOpen && (
                 <span className="font-medium text-sm whitespace-nowrap">
                   {link.label}
@@ -115,7 +115,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-3 border-t border-gray-200 bg-white">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-gray-50">
-          <div className="w-9 h-9 rounded-full bg-[#981E52]/10 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#981E52]/10 flex items-center justify-center shrink-0">
             <span className="text-[#981E52] font-semibold text-sm">
               {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
             </span>
