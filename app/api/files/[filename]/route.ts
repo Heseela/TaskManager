@@ -5,8 +5,8 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export async function GET(
-    request: NextRequest,
-    { params }: { params: { filename: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ filename: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function GET(
             );
         }
 
-        const filename = params.filename;
+        const { filename } = await params;
         const filePath = path.join(process.cwd(), 'public', 'uploads', 'reports', filename);
 
         try {

@@ -5,7 +5,6 @@ import { useSession } from 'next-auth/react';
 import { Task } from '@/types';
 import { CheckSquare, Plus, Filter, Eye, Users, Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
-import Link from 'next/link';
 import AssignTaskModal from '@/components/dashboard/supervisor/AssignTaskModal';
 import TaskProgressModal from '@/components/dashboard/TaskProgressModal';
 
