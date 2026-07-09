@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Report, Task } from '@/types';
-import { formatDateTime, formatTime } from '@/global/dateUtils';
 import { format } from 'date-fns';
-import { X, Clock, Calendar, User, FileText, AlertCircle, CheckCircle, Clock as ClockIcon, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Clock, Calendar, User, FileText, AlertCircle, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface TaskProgressModalProps {
     task: Task;
@@ -77,7 +76,7 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
     const getStatusIcon = (status: Task['status']) => {
         switch (status) {
             case 'pending':
-                return <ClockIcon size={14} className="text-yellow-600" />;
+                return <Clock size={14} className="text-yellow-600" />;
             case 'in-progress':
                 return <AlertCircle size={14} className="text-blue-600" />;
             case 'completed':
