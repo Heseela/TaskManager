@@ -290,7 +290,7 @@ export default function SupervisorTasksPage() {
 
                   <button
                     onClick={() => viewTaskProgress(task)}
-                    className="px-4 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors flex items-center gap-1.5 ml-4 whitespace-nowrap hover:scale-105 transition-all duration-200"
+                    className="px-4 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 flex items-center gap-1.5 ml-4 whitespace-nowrap hover:scale-105 transition-all duration-200"
                   >
                     <Eye size={16} />
                     View Progress
