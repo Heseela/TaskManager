@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { DailyReport } from '@/types';
 import { format } from 'date-fns';
-import { Filter, Eye, Calendar, Clock, User, CheckCircle, FileText, Users, Building, ChevronLeft, ChevronRight, Paperclip, File, Image, FileArchive, FileSpreadsheet, FileCode, X, EyeIcon } from 'lucide-react';
+import { Filter, Eye, Calendar, Clock, User, CheckCircle, FileText, Users, Building, ChevronLeft, ChevronRight, Paperclip, File, Image, FileArchive, FileSpreadsheet, FileCode, X, EyeIcon, Layers } from 'lucide-react';
 
 export default function TeamReportsPage() {
   const { data: session } = useSession();
@@ -491,7 +491,7 @@ export default function TeamReportsPage() {
             <div className="sticky top-0 bg-white rounded-t-2xl border-b border-gray-200 px-6 py-4 flex justify-between items-center">
               <h3 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
                 <FileText size={20} className="text-[#0088D0]" />
-                Report Details
+                Report Details of <span className='text-[#981E52]'>{selectedReport.userName}</span>
               </h3>
               <button
                 onClick={closeModal}
@@ -500,17 +500,10 @@ export default function TeamReportsPage() {
                 <X size={24} />
               </button>
             </div>
-
+ 
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Header Info */}
               <div className="grid grid-cols-2 gap-4 bg-gradient-to-br from-gray-50 to-blue-50/30 p-4 rounded-xl border border-gray-100">
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">Employee</p>
-                  <p className="font-medium text-gray-800 mt-1 flex items-center gap-2 capitalize">
-                    <User size={16} className="text-gray-400" />
-                    {selectedReport.userName}
-                  </p>
-                </div>
                 <div>
                   <p className="text-sm text-gray-500 font-medium">Date</p>
                   <p className="font-medium text-gray-800 mt-1 flex items-center gap-2">
@@ -534,7 +527,8 @@ export default function TeamReportsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500 font-medium">Sub-Unit</p>
-                  <p className="font-medium text-gray-800 mt-1 capitalize">
+                  <p className="font-medium text-gray-800 mt-1 flex items-center gap-2">
+                    <Layers size={16} className="text-gray-400" />
                     {selectedReport.subUnit || 'N/A'}
                   </p>
                 </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import Button from '../../ui/Button';
-import { CategoryTable, TASK_CATEGORIES_BY_SUB_UNIT, SubUnitType } from '@/types';
+import { CategoryTable } from '@/types';
 
 interface AssignTaskModalProps {
   isOpen: boolean;
@@ -27,39 +27,58 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
   const [dueDate, setDueDate] = useState('');
-  const [category, setCategory] = useState<CategoryTable | ''>('');
+  const [category, setCategory] = useState<string>('');
   const [assignedTo, setAssignedTo] = useState<string>('');
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [availableCategories, setAvailableCategories] = useState<CategoryTable[]>([]);
-
-  useEffect(() => {
-  }, [employees]);
-
-  useEffect(() => {
-    
-    if (!assignedTo) {
-      setAvailableCategories([]);
-      setCategory('');
-      return;
-    }
-
-    const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
-
-    if (selectedEmployee?.subUnit) {
-      const subUnitKey = selectedEmployee.subUnit as SubUnitType;
-      const categories = TASK_CATEGORIES_BY_SUB_UNIT[subUnitKey] || [];
-      
-      setAvailableCategories(categories);
-      setCategory('');
-    } else {
-      setAvailableCategories([]);
-      setCategory('');
-    }
-  }, [assignedTo, employees]);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
 
   const selectedEmployee = employees.find(emp => String(emp.id) === assignedTo);
+
+  // Fetch categories when employee is selected
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!assignedTo) {
+        setAvailableCategories([]);
+        setCategory('');
+        return;
+      }
+
+      const employee = employees.find(emp => String(emp.id) === assignedTo);
+      if (!employee?.subUnit) {
+        setAvailableCategories([]);
+        setCategory('');
+        return;
+      }
+
+      setIsLoadingCategories(true);
+      try {
+        const response = await fetch(
+          `/api/categories?subUnitName=${encodeURIComponent(employee.subUnit)}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setAvailableCategories(data.categories || []);
+          setCategory('');
+        } else {
+          console.error('Failed to fetch categories');
+          setAvailableCategories([]);
+          setCategory('');
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setAvailableCategories([]);
+        setCategory('');
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, [assignedTo, employees]);
 
   const validateField = (field: string, value: string): string => {
     switch (field) {
@@ -194,6 +213,7 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
     return touched[field] || Object.keys(errors).length > 0;
   };
 
+  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       setAssignedTo('');
@@ -337,35 +357,45 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
             )}
           </div>
 
-          {/* Task Category - Only show when categories are available */}
-          {availableCategories.length > 0 && (
+          {/* Task Category - Show when employee is selected and categories are available */}
+          {assignedTo && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Task Category
+                {isLoadingCategories && (
+                  <span className="ml-2 text-xs text-gray-400">Loading...</span>
+                )}
               </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as CategoryTable)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent"
-                disabled={isSubmitting}
-              >
-                <option value="">Select category</option>
-                {availableCategories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* No categories message */}
-          {selectedEmployee && availableCategories.length === 0 && selectedEmployee.subUnit && (
-            <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-100">
-              <p className="text-sm text-yellow-700">
-                No categories available for <strong>{selectedEmployee.subUnit}</strong> subunit.
-              </p>
-              <p className="text-xs text-yellow-600 mt-1">
-                Please contact your administrator to add categories for this subunit.
-              </p>
+              {isLoadingCategories ? (
+                <div className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-[#0088D0]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="text-gray-500">Loading categories...</span>
+                </div>
+              ) : availableCategories.length > 0 ? (
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent"
+                  disabled={isSubmitting}
+                >
+                  <option value="">Select category</option>
+                  {availableCategories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="bg-yellow-50 rounded-lg p-3 border border-yellow-100">
+                  <p className="text-sm text-yellow-700">
+                    No categories available for <strong>{selectedEmployee?.subUnit}</strong> subunit.
+                  </p>
+                  <p className="text-xs text-yellow-600 mt-1">
+                    Please contact your administrator to add categories for this subunit.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
