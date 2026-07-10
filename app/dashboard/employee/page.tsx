@@ -16,7 +16,7 @@ import {
   Briefcase,
 } from 'lucide-react';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, isWithinInterval, parseISO } from 'date-fns';
 
 export default function EmployeeDashboard() {
   const { data: session } = useSession();
@@ -68,8 +68,17 @@ export default function EmployeeDashboard() {
   }, [session]);
 
   const recentReports = reports.slice(0, 5);
-  const today = format(new Date(), 'yyyy-MM-dd');
-  const todayReports = reports.filter(r => r.date === today);
+  
+  // Fix: Get today's reports correctly by comparing dates properly
+  const today = new Date();
+  const todayReports = reports.filter(r => {
+    const reportDate = new Date(r.date);
+    return (
+      reportDate.getFullYear() === today.getFullYear() &&
+      reportDate.getMonth() === today.getMonth() &&
+      reportDate.getDate() === today.getDate()
+    );
+  });
 
   const StatCard = ({ icon: Icon, label, value, color, bgColor }: any) => (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-all duration-200 hover:scale-[1.02]">

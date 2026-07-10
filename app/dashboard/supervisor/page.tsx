@@ -59,8 +59,15 @@ export default function SupervisorDashboard() {
         setTasks(tasksArray);
         setEmployees(employeesArray);
 
-        const today = format(new Date(), 'yyyy-MM-dd');
-        const todayReports = reportsArray.filter((r: DailyReport) => r.date === today);
+        const today = new Date();
+        const todayReports = reports.filter(r => {
+          const reportDate = new Date(r.date);
+          return (
+            reportDate.getFullYear() === today.getFullYear() &&
+            reportDate.getMonth() === today.getMonth() &&
+            reportDate.getDate() === today.getDate()
+          );
+        });
         const pending = tasksArray.filter((t: Task) => t.status !== 'completed').length;
         const totalHours = reportsArray.reduce((sum: number, r: DailyReport) => sum + (r.hoursWorked || 0), 0);
         const avgHours = reportsArray.length > 0 ? (totalHours / reportsArray.length) : 0;
