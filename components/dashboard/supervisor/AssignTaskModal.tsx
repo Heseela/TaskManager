@@ -86,17 +86,17 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
         if (value.trim().length < 3) return 'Task title must be at least 3 characters';
         if (value.trim().length > 100) return 'Task title must be less than 100 characters';
         return '';
-      
+
       case 'assignedTo':
         if (!value) return 'Please select an employee';
         return '';
-      
+
       case 'description':
         if (!value.trim()) return 'Task description is required';
         if (value.trim().length < 10) return 'Description must be at least 10 characters';
         if (value.trim().length > 500) return 'Description must be less than 500 characters';
         return '';
-      
+
       default:
         return '';
     }
@@ -181,7 +181,7 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
       });
 
       toast.success('Task assigned successfully!');
-      
+
       setTitle('');
       setDescription('');
       setAssignedTo('');
@@ -233,8 +233,8 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
       <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl">
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-800">Assign New Task</h2>
-          <button 
-            onClick={handleClose} 
+          <button
+            onClick={handleClose}
             className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-colors"
             disabled={isSubmitting}
           >
@@ -261,9 +261,8 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
                 }
               }}
               onBlur={() => handleBlur('title')}
-              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
-                errors.title && shouldShowError('title') ? 'border-red-500' : 'border-gray-200'
-              }`}
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${errors.title && shouldShowError('title') ? 'border-red-500' : 'border-gray-200'
+                }`}
               placeholder="Enter task title"
               disabled={isSubmitting}
             />
@@ -292,9 +291,8 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
                 }
               }}
               onBlur={() => handleBlur('description')}
-              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
-                errors.description && shouldShowError('description') ? 'border-red-500' : 'border-gray-200'
-              }`}
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${errors.description && shouldShowError('description') ? 'border-red-500' : 'border-gray-200'
+                }`}
               rows={3}
               placeholder="Describe the task in detail"
               disabled={isSubmitting}
@@ -325,9 +323,8 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
                 }
               }}
               onBlur={() => handleBlur('assignedTo')}
-              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
-                errors.assignedTo && shouldShowError('assignedTo') ? 'border-red-500' : 'border-gray-200'
-              }`}
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${errors.assignedTo && shouldShowError('assignedTo') ? 'border-red-500' : 'border-gray-200'
+                }`}
               disabled={isSubmitting || employees.length === 0}
             >
               <option value="">Select employee</option>
@@ -434,17 +431,17 @@ export default function AssignTaskModal({ isOpen, onClose, employees, onSubmit }
 
           {/* Action Buttons */}
           <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <Button 
-              type="button" 
-              variant="secondary" 
-              onClick={handleClose} 
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={handleClose}
               className="flex-1"
               disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               className="flex-1"
               disabled={isSubmitting || employees.length === 0}
             >

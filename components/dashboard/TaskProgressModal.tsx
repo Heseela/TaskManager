@@ -200,14 +200,14 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
                                     {taskReports.map((report) => {
                                         const isExpanded = expandedReports.has(report.id);
                                         const hasDescription = report.taskDescription || report.previousTaskDescription;
-                                        
+
                                         return (
-                                            <div 
-                                                key={report.id} 
+                                            <div
+                                                key={report.id}
                                                 className="bg-blue-50 border border-blue-100 rounded-lg overflow-hidden transition-all duration-200 hover:border-blue-200"
                                             >
                                                 {/* Report Header */}
-                                                <div 
+                                                <div
                                                     className="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-blue-100/50 transition-colors"
                                                     onClick={() => hasDescription && toggleReportExpand(report.id)}
                                                 >
@@ -242,7 +242,7 @@ export default function TaskProgressModal({ task, onClose }: TaskProgressModalPr
                                                                 </div>
                                                             </div>
                                                         )}
-                                                        
+
                                                         {report.previousTaskDescription && (
                                                             <div>
                                                                 <p className="text-xs font-medium text-gray-500 mb-1.5">Previous Task Description</p>

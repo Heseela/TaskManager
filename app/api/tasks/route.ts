@@ -5,7 +5,7 @@ import { getAllTasks, getTasksByEmployee, getTasksBySupervisor, createTask, upda
 
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
 
   try {
     let tasks;
-    
+
     if (role === 'supervisor') {
       tasks = await getTasksBySupervisor(session.user.id);
     } else if (role === 'employee') {
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user || session.user.role !== 'supervisor') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   const session = await getServerSession(authOptions);
-  
+
   if (!session?.user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -103,7 +103,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const task = await updateTask(taskId, status);
-    
+
     if (!task) {
       return NextResponse.json(
         { error: 'Task not found' },

@@ -34,8 +34,8 @@ export default function TeamReportsPage() {
 
         const reportsData = await reportsRes.json();
         const employeesData = await employeesRes.json();
-console.log("Reports:", reportsData);
-console.log("Employees:", employeesData);
+        console.log("Reports:", reportsData);
+        console.log("Employees:", employeesData);
         const reportsWithDepartment = reportsData.map((report: any) => {
           const employee = employeesData.find((emp: any) => emp.id === report.userId);
           return {
@@ -267,13 +267,13 @@ console.log("Employees:", employeesData);
             >
               <option value="">All Employees</option>
               {employees.map((emp) => (
-              <option key={emp.id} value={String(emp.id)}>
-                {emp.name
-                  .split(' ')
-                  .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(' ')}
-              </option>
-            ))}
+                <option key={emp.id} value={String(emp.id)}>
+                  {emp.name
+                    .split(' ')
+                    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                    .join(' ')}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -374,7 +374,7 @@ console.log("Employees:", employeesData);
                       </td>
                       <td className="py-3 px-6 text-gray-600">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1  rounded-full text-xs font-medium">
-                        
+
                           {report.tasks.length}
                         </span>
                       </td>
@@ -414,8 +414,8 @@ console.log("Employees:", employeesData);
                           </span>
                         </div>
                       </td>
-                      
-                      
+
+
                       <td className="px-4 py-3 text-center whitespace-nowrap">
                         <button
                           onClick={() => viewReport(report)}
@@ -504,7 +504,7 @@ console.log("Employees:", employeesData);
                 <X size={24} />
               </button>
             </div>
- 
+
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Header Info */}
               <div className="grid grid-cols-2 gap-4 bg-linear-to-br from-gray-50 to-blue-50/30 p-4 rounded-xl border border-gray-100">

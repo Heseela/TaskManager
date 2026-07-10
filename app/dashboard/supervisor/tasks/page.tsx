@@ -19,7 +19,7 @@ export default function SupervisorTasksPage() {
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
 
@@ -106,8 +106,8 @@ export default function SupervisorTasksPage() {
     return (
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${styles[status]}`}>
         <span className={`w-1.5 h-1.5 rounded-full ${status === 'pending' ? 'bg-yellow-500' :
-            status === 'in-progress' ? 'bg-blue-500' :
-              'bg-green-500'
+          status === 'in-progress' ? 'bg-blue-500' :
+            'bg-green-500'
           }`}></span>
         {labels[status]}
       </span>
@@ -313,11 +313,10 @@ export default function SupervisorTasksPage() {
                 <button
                   onClick={goToPreviousPage}
                   disabled={currentPage === 1}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                    currentPage === 1
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === 1
                       ? 'text-gray-300 cursor-not-allowed'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
+                    }`}
                 >
                   <ChevronLeft size={16} />
                   Previous
@@ -327,11 +326,10 @@ export default function SupervisorTasksPage() {
                     <button
                       key={page}
                       onClick={() => paginate(page)}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                        currentPage === page
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${currentPage === page
                           ? 'bg-[#0088D0] text-white'
                           : 'text-gray-600 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>
@@ -340,11 +338,10 @@ export default function SupervisorTasksPage() {
                 <button
                   onClick={goToNextPage}
                   disabled={currentPage === totalPages}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-                    currentPage === totalPages
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${currentPage === totalPages
                       ? 'text-gray-300 cursor-not-allowed'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-800'
-                  }`}
+                    }`}
                 >
                   Next
                   <ChevronRight size={16} />

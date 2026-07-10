@@ -5,7 +5,7 @@ import { CategoryTable } from '@/types';
 export async function getCategoriesBySubUnit(subUnitName: string): Promise<CategoryTable[]> {
   try {
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .input('subUnitName', sql.VarChar, subUnitName)
       .query(`
@@ -27,7 +27,7 @@ export async function getCategoriesBySubUnit(subUnitName: string): Promise<Categ
 export async function getCategoriesBySubUnitId(subUnitId: number): Promise<CategoryTable[]> {
   try {
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .input('subUnitId', sql.Int, subUnitId)
       .query(`
@@ -48,7 +48,7 @@ export async function getCategoriesBySubUnitId(subUnitId: number): Promise<Categ
 export async function getAllCategoriesWithSubUnits() {
   try {
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .query(`
         SELECT 
@@ -88,7 +88,7 @@ export async function getAllCategoriesWithSubUnits() {
 export async function getSubUnitById(subUnitId: number) {
   try {
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .input('subUnitId', sql.Int, subUnitId)
       .query(`
@@ -110,7 +110,7 @@ export async function getSubUnitById(subUnitId: number) {
 export async function getSubUnitByName(subUnitName: string) {
   try {
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .input('subUnitName', sql.VarChar, subUnitName)
       .query(`
@@ -132,7 +132,7 @@ export async function getSubUnitByName(subUnitName: string) {
 export async function createCategory(subUnitId: number, categoryName: string) {
   try {
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .input('subUnitId', sql.Int, subUnitId)
       .input('categoryName', sql.VarChar, categoryName)
@@ -153,7 +153,7 @@ export async function createCategory(subUnitId: number, categoryName: string) {
 export async function deleteCategory(categoryId: number) {
   try {
     const pool = await getDb();
-    
+
     await pool.request()
       .input('categoryId', sql.Int, categoryId)
       .query(`
@@ -171,7 +171,7 @@ export async function deleteCategory(categoryId: number) {
 export async function updateCategory(categoryId: number, newCategoryName: string) {
   try {
     const pool = await getDb();
-    
+
     await pool.request()
       .input('categoryId', sql.Int, categoryId)
       .input('newCategoryName', sql.VarChar, newCategoryName)

@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
       tomorrowPlan: body.tomorrowPlan || [],
       subUnit: body.subUnit || session.user.subUnit || '',
       taskDescription: body.taskDescription || '',
-      previousTaskDescription:body.previousTaskDescription || '',
+      previousTaskDescription: body.previousTaskDescription || '',
       status: 'submitted',
       fileAttachments: body.fileAttachments || [],
     });

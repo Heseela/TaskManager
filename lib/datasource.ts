@@ -10,9 +10,9 @@ export const db = {
       .input("name", userData.name)
       .input("password", userData.password)
       .input("role", userData.role)
-      .input("department",userData.department)
-      .input("unit",userData.subUnit)
-      
+      .input("department", userData.department)
+      .input("unit", userData.subUnit)
+
       .query(`
         INSERT INTO userTable
         (
@@ -52,5 +52,5 @@ export const db = {
     return result.recordset[0] || null;
   }
 
-  
+
 };

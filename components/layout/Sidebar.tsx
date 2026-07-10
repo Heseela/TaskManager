@@ -72,8 +72,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         </div>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors"
-        >
+          className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
           {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
         </button>
       </div>
@@ -89,8 +88,8 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               key={link.href}
               href={link.href}
               className={`flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group relative ${isActive
-                  ? 'bg-[#0088D0]/10 text-[#0088D0]'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                ? 'bg-[#0088D0]/10 text-[#0088D0]'
+                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
                 }`}
             >
               <Icon size={20} className="shrink-0" />

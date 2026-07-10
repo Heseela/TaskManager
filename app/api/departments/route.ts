@@ -11,7 +11,7 @@ export async function GET() {
     }
 
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .query(`
         SELECT 

@@ -24,7 +24,7 @@ interface SubUnit {
     DepID: string;
     SubUnit: string;
     DepName?: string;
-    DepCode?: string;   
+    DepCode?: string;
 }
 
 export default function TaskCategoriesPage() {
@@ -34,15 +34,15 @@ export default function TaskCategoriesPage() {
     const [filteredCategories, setFilteredCategories] = useState<Category[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
     const [subUnits, setSubUnits] = useState<SubUnit[]>([]);
-    
+
     const [selectedDepartmentId, setSelectedDepartmentId] = useState<number | ''>('');
     const [selectedSubUnitId, setSelectedSubUnitId] = useState<number | ''>('');
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     const [categoryName, setCategoryName] = useState('');
     const [formDepartmentId, setFormDepartmentId] = useState<number | ''>('');
     const [formSubUnitId, setFormSubUnitId] = useState<number | ''>('');
-    
+
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -396,7 +396,7 @@ export default function TaskCategoriesPage() {
                             }}
                         />
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                         <Filter size={18} className="text-gray-400" />
                         <select

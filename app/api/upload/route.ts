@@ -55,9 +55,9 @@ export async function POST(request: NextRequest) {
 
         const fileName = `${Date.now()}_${file.name}`;
         const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'reports');
-        
+
         await mkdir(uploadDir, { recursive: true });
-        
+
         const filePath = path.join(uploadDir, fileName);
         await writeFile(filePath, buffer);
 
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            id: Date.now(), 
+            id: Date.now(),
             name: file.name,
             url: fileUrl,
             size: file.size,

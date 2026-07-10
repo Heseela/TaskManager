@@ -32,21 +32,20 @@ export async function getDb() {
   }
 }
 
-  export async function getUser(
-    email: string
-  ) 
-  { 
-    const pool = await getDb(); 
-    const result = await pool 
-    .request() 
+export async function getUser(
+  email: string
+) {
+  const pool = await getDb();
+  const result = await pool
+    .request()
     .input(
-      "email", 
+      "email",
       sql.VarChar, email
-    ) 
+    )
     .query(`
        SELECT * 
        FROM userTable 
        WHERE email = @email 
-      `); 
-      return result.recordset[0]; 
+      `);
+  return result.recordset[0];
 }

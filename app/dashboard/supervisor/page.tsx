@@ -38,7 +38,7 @@ export default function SupervisorDashboard() {
   });
   const [isLoading, setIsLoading] = useState(true);
 
- useEffect(() => {
+  useEffect(() => {
     const fetchData = async () => {
       try {
         const [reportsRes, tasksRes, employeesRes] = await Promise.all([
@@ -103,7 +103,7 @@ export default function SupervisorDashboard() {
     </div>
   );
 
-    const ActivityItem = ({ report, index }: { report: DailyReport; index: number }) => (
+  const ActivityItem = ({ report, index }: { report: DailyReport; index: number }) => (
     <div
       className="flex items-center justify-between py-3.5 px-2 rounded-xl hover:bg-gray-50/80 transition-all duration-200 border-b border-gray-100/80 last:border-0 group"
       style={{ animationDelay: `${index * 50}ms` }}
@@ -161,11 +161,11 @@ export default function SupervisorDashboard() {
       {/* Welcome */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-           
+
           <h1 className="flex gap-2 text-2xl font-bold text-gray-800">
-            Team Dashboard 
-              <Sparkles size={20} className="text-[#e9a20a]" />
-           
+            Team Dashboard
+            <Sparkles size={20} className="text-[#e9a20a]" />
+
           </h1>
           <p className="text-gray-500 mt-1">
             Manage your team's reports and tasks
@@ -238,7 +238,7 @@ export default function SupervisorDashboard() {
       </div>
 
       {/* Recent Team Activity */}
-         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100/80 p-6 hover:shadow-lg transition-shadow">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ export default function SupervisorDashboard() {
             </div>
           </div>
         </div>
-        </div>
+      </div>
     </div>
   );
 }

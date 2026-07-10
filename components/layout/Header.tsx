@@ -35,15 +35,14 @@ export default function Header({ sidebarOpen, setSidebarOpen }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="flex items-center justify-between px-4 sm:px-6 h-16">
-       
+
 
         <div className="flex-1 hidden lg:block" />
 
         <div className="flex items-center gap-4">
 
           <div className="relative" ref={dropdownRef}>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
-            >
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0]">
               <div className="w-9 h-9 rounded-full bg-linear-to-br from-[#0088D0] to-[#0077b8] flex items-center justify-center shrink-0">
                 <span className="text-white font-semibold text-sm">
                   {getUserInitials()}

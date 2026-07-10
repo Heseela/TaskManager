@@ -37,12 +37,12 @@ export default function LoginPage() {
         if (!value.trim()) return 'Email is required';
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email address';
         return '';
-      
+
       case 'password':
         if (!value) return 'Password is required';
         if (value.length < 5) return 'Password must be at least 5 characters long';
         return '';
-      
+
       default:
         return '';
     }
@@ -134,15 +134,15 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center rounded-2xl mb-4">
-           <div className=" rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
-                       <Image
-                         src="/logo.png"
-                         alt="Logo"
-                         width={50}
-                         height={50}
-                         className="object-cover"
-                       />
-                     </div>
+            <div className=" rounded-xl flex items-center justify-center shrink-0 overflow-hidden">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={50}
+                height={50}
+                className="object-cover"
+              />
+            </div>
           </div>
           <h1 className="text-2xl font-bold text-[#981E52]">SRDB Daily Log</h1>
           <p className="text-gray-500 mt-1">Sign in to your account</p>

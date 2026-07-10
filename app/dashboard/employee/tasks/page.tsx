@@ -88,11 +88,10 @@ export default function EmployeeTasksPage() {
     };
     return (
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${styles[status]}`}>
-        <span className={`w-1.5 h-1.5 rounded-full ${
-          status === 'pending' ? 'bg-yellow-500' :
-          status === 'in-progress' ? 'bg-blue-500' :
-          'bg-green-500'
-        }`}></span>
+        <span className={`w-1.5 h-1.5 rounded-full ${status === 'pending' ? 'bg-yellow-500' :
+            status === 'in-progress' ? 'bg-blue-500' :
+              'bg-green-500'
+          }`}></span>
         {labels[status]}
       </span>
     );
@@ -196,11 +195,11 @@ export default function EmployeeTasksPage() {
                     {getPriorityBadge(task.priority)}
                     {getStatusBadge(task.status)}
                   </div>
-                  
+
                   {task.description && (
                     <p className="text-gray-600 text-sm mb-3">{task.description}</p>
                   )}
-                  
+
                   {task.category && (
                     <p className="text-sm text-gray-500 mb-2">
                       Category: <span className="font-medium text-gray-700">{task.category}</span>

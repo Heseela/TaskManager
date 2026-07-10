@@ -99,7 +99,7 @@ export default function FileUpload({
                     accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.xls,.xlsx,.txt"
                     disabled={isUploading || uploadedFiles.length >= maxFiles}
                 />
-                
+
                 <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
@@ -118,7 +118,7 @@ export default function FileUpload({
                         </>
                     )}
                 </button>
-                
+
                 <span className="text-xs text-gray-400">
                     {uploadedFiles.length}/{maxFiles} files
                 </span>

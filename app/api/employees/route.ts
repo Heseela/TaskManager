@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     const pool = await getDb();
-    
+
     const result = await pool.request()
       .query(`
         SELECT 
@@ -73,9 +73,9 @@ export async function POST(request: NextRequest) {
       role: role || 'employee'
     });
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Employee created successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Employee created successfully'
     });
   } catch (error) {
     console.error('Error creating employee:', error);

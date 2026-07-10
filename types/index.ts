@@ -26,11 +26,12 @@ export interface Report {
   userSubUnit?: string;
   fileAttachments?: FileAttachment[]
 }
+
 export interface FileAttachment {
-    id: number;
-    reportId: number;
-    name: string;
-    url: string;
+  id: number;
+  reportId: number;
+  name: string;
+  url: string;
 }
 
 export interface Task {
@@ -49,16 +50,9 @@ export interface Task {
   category?: CategoryTable;
 }
 
-export interface SafeUser {
-  id: number;
-  name: string;
-  email: string;
-  role: 'supervisor' | 'employee';
-  department: DepartmentType;
-  subUnit?: SubUnitType;
-}
-
-export type DepartmentType = 'IT';
+export type DepartmentType = string;
+export type SubUnitType = string;
+export type CategoryTable = string;
 
 export interface Department {
   ID: number;
@@ -72,92 +66,5 @@ export interface SubUnit {
   SubUnit: SubUnitType;
 }
 
-export type SubUnitType =
-  | 'Developer'
-  | 'Network'
-  | 'Support'
-  | 'Infra'
-  | 'CBS'
-  | 'CTO';
-
-
-export interface CategoryTableDB {
-  ID: number;
-  SubUnitID: number;
-  CategoryName: CategoryTable;
-  CreatedAt: string;
-}
-
-export interface SubUnitWithCategories {
-  ID: number;
-  SubUnit: SubUnitType;
-  Categories: CategoryTable[];
-}
-
-export type CategoryTable =
-  | 'PRTG Scan'
-  | 'Network Policy'
-  | 'Internet Allow'
-  | 'Server Network Configuration'
-  | 'Application Development'
-  | 'Database'
-  | 'Query'
-  | 'App/Db Server Monitor'
-  | 'Email Job for Report'
-  | 'Printer Setup'
-  | 'User Access'
-  | 'PC Setup'
-  | 'Email Setup'
-  | 'Camera Monitoring'
-  | 'Domain Setup'
-  | 'Server Setup'
-  | 'VMware Monitoring'
-  | 'Server Hardening'
-  | 'DCIM Monitoring'
-  | 'Pumori'
-  | 'CBS Configuration'
-  | 'CBS Monitoring'
-  | 'Tech Support'
-  | 'Hardware Setup'
-  | 'Data Reconciliation'
-  | 'Report Generation';
-
-export const DEPARTMENTS = ['IT'] as const;
-
-export const SUB_UNITS_BY_DEPARTMENT: Record<DepartmentType, SubUnitType[]> = {
-  IT: ['Developer', 'Network', 'Support', 'Infra', 'CBS']
-};
-
-export const TASK_CATEGORIES_BY_SUB_UNIT: Record<SubUnitType, CategoryTable[]> = {
-  'Network': ['PRTG Scan', 'Network Policy', 'Internet Allow', 'Server Network Configuration'],
-  'Developer': ['Application Development', 'Database', 'Query', 'App/Db Server Monitor', 'Email Job for Report'],
-  'Support': ['Printer Setup', 'User Access', 'PC Setup', 'Email Setup', 'Camera Monitoring', 'Domain Setup'],
-  'Infra': ['Server Setup', 'VMware Monitoring', 'Server Hardening', 'DCIM Monitoring'],
-  'CBS': ['Pumori', 'CBS Configuration', 'CBS Monitoring'],
-  'CTO': []
-};
-
 export interface DailyReport extends Report { }
-export interface AuthResponse {
-  user: SafeUser | null;
-  error?: string;
-}
 
-export interface SystemStats {
-  totalUsers: number;
-  totalTasks: number;
-  totalReports: number;
-  totalDepartments: number;
-  totalSubUnits: number;
-  activeUsers: number;
-  tasksByStatus: {
-    pending: number;
-    'in-progress': number;
-    completed: number;
-  };
-  reportsByStatus: {
-    pending: number;
-    submitted: number;
-    reviewed: number;
-  };
-}

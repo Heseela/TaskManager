@@ -17,7 +17,7 @@ export async function GET(request: Request) {
     const all = searchParams.get('all');
 
     const pool = await getDb();
-    
+
     let query = `
       SELECT 
         c.ID,
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       FROM CategoryTable c
       INNER JOIN UnitTable u ON c.SubUnitID = u.ID
     `;
-    
+
     const request_obj = pool.request();
 
     if (all === 'true') {

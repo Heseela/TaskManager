@@ -5,8 +5,8 @@ import fs from 'fs/promises';
 import path from 'path';
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ filename: string }> }
+    request: NextRequest,
+    { params }: { params: Promise<{ filename: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -31,7 +31,7 @@ export async function GET(
 
         const fileBuffer = await fs.readFile(filePath);
         const fileExtension = path.extname(filename).toLowerCase();
-        
+
         let contentType = 'application/octet-stream';
         if (fileExtension === '.pdf') contentType = 'application/pdf';
         else if (['.jpg', '.jpeg'].includes(fileExtension)) contentType = 'image/jpeg';

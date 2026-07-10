@@ -398,7 +398,7 @@ export default function EmployeeReportsPage() {
                   </div>
                 </div>
               )}
-              
+
               {/* Challenges */}
               {selectedReport.challenges && (
                 <div>
@@ -431,7 +431,7 @@ export default function EmployeeReportsPage() {
                   </div>
                 </div>
               )}
-              
+
               {/* File Attachments Section */}
               {selectedReport.fileAttachments && selectedReport.fileAttachments.length > 0 && (
                 <div>

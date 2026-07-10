@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       FROM UnitTable u
       INNER JOIN DepTable d ON u.DepID = d.ID
     `;
-    
+
     const request_obj = pool.request();
 
     if (depId) {

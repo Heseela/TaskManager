@@ -7,7 +7,7 @@ import { ArrowLeft, Users, Calendar, AlertCircle, Send } from 'lucide-react';
 import Link from 'next/link';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { SubUnitType, TASK_CATEGORIES_BY_SUB_UNIT, CategoryTable } from '@/types';
+import { SubUnitType, CategoryTable } from '@/types';
 import toast from 'react-hot-toast';
 
 interface Employee {
@@ -20,7 +20,9 @@ export default function AssignTaskPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [categories, setCategories] = useState<CategoryTable[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -53,10 +55,45 @@ export default function AssignTaskPage() {
     }
   }, [session]);
 
+  // Fetch categories when employee is selected
+  useEffect(() => {
+    const fetchCategories = async () => {
+      if (!formData.assignedTo) {
+        setCategories([]);
+        return;
+      }
+
+      const selectedEmployee = employees.find(emp => emp.id === formData.assignedTo);
+      if (!selectedEmployee?.subUnit) {
+        setCategories([]);
+        return;
+      }
+
+      setIsLoadingCategories(true);
+      try {
+        const response = await fetch(
+          `/api/categories?subUnitName=${encodeURIComponent(selectedEmployee.subUnit)}`
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data.categories || []);
+        } else {
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, [formData.assignedTo, employees]);
+
   const selectedEmployee = employees.find(emp => emp.id === formData.assignedTo);
-  const availableCategories = selectedEmployee?.subUnit
-    ? TASK_CATEGORIES_BY_SUB_UNIT[selectedEmployee.subUnit] || []
-    : [];
+  const availableCategories = categories;
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -117,7 +154,7 @@ export default function AssignTaskPage() {
 
       const response = await fetch('/api/tasks', {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(taskData),
@@ -177,8 +214,9 @@ export default function AssignTaskPage() {
                 if (errors.title) setErrors({ ...errors, title: '' });
               }}
               placeholder="Enter task title"
-              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${errors.title ? 'border-red-500' : 'border-gray-200'
-                }`}
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
+                errors.title ? 'border-red-500' : 'border-gray-200'
+              }`}
               disabled={isSubmitting}
             />
             {errors.title && (
@@ -199,8 +237,9 @@ export default function AssignTaskPage() {
               }}
               placeholder="Describe the task in detail"
               rows={4}
-              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${errors.description ? 'border-red-500' : 'border-gray-200'
-                }`}
+              className={`w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
+                errors.description ? 'border-red-500' : 'border-gray-200'
+              }`}
               disabled={isSubmitting}
             />
             {errors.description && (
@@ -221,8 +260,9 @@ export default function AssignTaskPage() {
                   setFormData({ ...formData, assignedTo: e.target.value, category: '' });
                   if (errors.assignedTo) setErrors({ ...errors, assignedTo: '' });
                 }}
-                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${errors.assignedTo ? 'border-red-500' : 'border-gray-200'
-                  }`}
+                className={`w-full pl-10 pr-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0] focus:border-transparent ${
+                  errors.assignedTo ? 'border-red-500' : 'border-gray-200'
+                }`}
                 disabled={isSubmitting || employees.length === 0}
               >
                 <option value="">Select employee</option>
@@ -248,22 +288,33 @@ export default function AssignTaskPage() {
           </div>
 
           {/* Category */}
-          {selectedEmployee && availableCategories.length > 0 && (
+          {selectedEmployee && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
                 Task Category
               </label>
-              <select
-                value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
-                disabled={isSubmitting}
-              >
-                <option value="">Select category</option>
-                {availableCategories.map((cat) => (
-                  <option key={cat} value={cat}>{cat}</option>
-                ))}
-              </select>
+              {isLoadingCategories ? (
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#0088D0] border-t-transparent"></div>
+                  Loading categories...
+                </div>
+              ) : availableCategories.length > 0 ? (
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0088D0]"
+                  disabled={isSubmitting}
+                >
+                  <option value="">Select category</option>
+                  {availableCategories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="text-sm text-gray-500 italic">
+                  No categories available for this employee's sub-unit
+                </p>
+              )}
             </div>
           )}
 

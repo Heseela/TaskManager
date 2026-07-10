@@ -27,7 +27,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  
+
   const [departments, setDepartments] = useState<
     {
       ID: number;
@@ -92,12 +92,12 @@ export default function SignupPage() {
         if (value.trim().length < 2) return 'Name must be at least 2 characters';
         if (!/^[a-zA-Z\s\-']+$/.test(value.trim())) return 'Name can only contain letters, spaces, hyphens, and apostrophes';
         return '';
-      
+
       case 'email':
         if (!value.trim()) return 'Email is required';
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Please enter a valid email address';
         return '';
-      
+
       case 'password':
         if (!value) return 'Password is required';
         if (value.length < 5) return 'Password must be at least 5 characters long';
@@ -105,20 +105,20 @@ export default function SignupPage() {
         if (!/(?=.*[A-Z])/.test(value)) return 'Password must contain at least one uppercase letter';
         if (!/(?=.*\d)/.test(value)) return 'Password must contain at least one number';
         return '';
-      
+
       case 'confirmPassword':
         if (!value) return 'Please confirm your password';
         if (value !== password) return 'Passwords do not match';
         return '';
-      
+
       case 'department':
         if (!value) return 'Department is required';
         return '';
-      
+
       case 'subUnit':
         if (role === 'employee' && !value) return 'Sub-unit is required for employees';
         return '';
-      
+
       default:
         return '';
     }
@@ -235,7 +235,7 @@ export default function SignupPage() {
             </div>
           </div>
           <h1 className="text-3xl font-bold" style={{ color: '#981E52' }}>
-           SRDB Daily Log
+            SRDB Daily Log
           </h1>
           <p className="text-gray-600 mt-2">Create a new account</p>
         </div>
@@ -357,7 +357,7 @@ export default function SignupPage() {
               value={role}
               onChange={(e) => {
                 setRole(e.target.value as 'employee' | 'supervisor');
-                setSubUnit(''); 
+                setSubUnit('');
                 if (errors.subUnit) {
                   setErrors({ ...errors, subUnit: '' });
                 }
@@ -384,9 +384,8 @@ export default function SignupPage() {
                 }
               }}
               onBlur={() => handleBlur('department')}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.department && shouldShowError('department') ? 'border-red-500' : 'border-gray-300'
-              }`}
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.department && shouldShowError('department') ? 'border-red-500' : 'border-gray-300'
+                }`}
             >
               {/* <option value="">Select Department</option> */}
               {departments.map((dept) => (
@@ -416,9 +415,8 @@ export default function SignupPage() {
                   }
                 }}
                 onBlur={() => handleBlur('subUnit')}
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  errors.subUnit && shouldShowError('subUnit') ? 'border-red-500' : 'border-gray-300'
-                }`}
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${errors.subUnit && shouldShowError('subUnit') ? 'border-red-500' : 'border-gray-300'
+                  }`}
                 disabled={!department}
               >
                 {/* <option value="">Select Sub-unit</option> */}

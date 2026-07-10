@@ -121,7 +121,7 @@ export default function EmployeeDashboard() {
               </p>
             </div>
           </div>
-          
+
           <Link
             href="/dashboard/employee/reports/new"
             className="px-5 py-2.5 bg-[#0088D0] text-white rounded-lg hover:bg-[#0077b8] transition-all duration-200 flex items-center gap-2 shadow-sm hover:shadow-md shrink-0"
@@ -236,8 +236,8 @@ export default function EmployeeDashboard() {
           ) : (
             <div className="space-y-2">
               {recentReports.map((report) => (
-                <div 
-                  key={report.id} 
+                <div
+                  key={report.id}
                   className="flex items-center justify-between py-2.5 px-3 rounded-lg hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
                 >
                   <div className="flex items-center gap-3">

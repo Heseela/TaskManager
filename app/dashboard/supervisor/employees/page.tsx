@@ -49,7 +49,7 @@ export default function EmployeesPage() {
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       filtered = filtered.filter(
-        emp => 
+        emp =>
           emp.name.toLowerCase().includes(term) ||
           emp.email.toLowerCase().includes(term)
       );
