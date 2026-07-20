@@ -55,7 +55,6 @@ export default function AssignTaskPage() {
     }
   }, [session]);
 
-  // Fetch categories when employee is selected
   useEffect(() => {
     const fetchCategories = async () => {
       if (!formData.assignedTo) {

@@ -69,7 +69,6 @@ export default function EmployeeDashboard() {
 
   const recentReports = reports.slice(0, 5);
   
-  // Fix: Get today's reports correctly by comparing dates properly
   const today = new Date();
   const todayReports = reports.filter(r => {
     const reportDate = new Date(r.date);
@@ -112,7 +111,6 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Welcome Section */}
       <div className=" py-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-4">

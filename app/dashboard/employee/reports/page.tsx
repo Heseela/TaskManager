@@ -74,7 +74,6 @@ export default function EmployeeReportsPage() {
     }
   };
 
-  // Stats
   const totalReports = reports.length;
   const totalHours = reports.reduce((sum, report) => sum + (report.hoursWorked || 0), 0);
   const uniqueDates = new Set(reports.map(r => r.date)).size;

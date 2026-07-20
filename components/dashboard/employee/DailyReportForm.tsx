@@ -533,6 +533,7 @@ export default function DailyReportForm({ onSubmit }: { onSubmit: (data: any) =>
 
   return (
     <Card className="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden border-0">
+      
       <div className="bg-linear-to-r from-[#0088D0] to-[#0066A0] px-6 py-4">
         <h2 className="text-xl font-bold text-white flex items-center gap-2">
           <FileText size={24} />
